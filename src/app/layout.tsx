@@ -1,14 +1,32 @@
+import { Big_Shoulders, Work_Sans, IBM_Plex_Mono } from "next/font/google";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
+import Link from "next/link";
 
-const inter = Inter({ subsets: ["latin"] });
+const bigShoulders = Big_Shoulders({
+  subsets: ["latin"],
+  weight: ["400", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-mono-versa",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Versa Visual · PhotoLab Simulador",
-  description:
-    "Aprenda fotografia praticando com simulações reais, desafios e feedback automático.",
+  title: "Versa Visual PhotoLab",
+  description: "Simulador de exposição fotográfica",
 };
 
 export default function RootLayout({
@@ -17,41 +35,45 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className="dark">
-      <body className={inter.className}>
-        <nav className="border-b border-border sticky top-0 bg-background/80 backdrop-blur z-50">
-          <div className="container max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-            <Link href="/" className="font-bold text-sm">
-              📸 Versa Visual · PhotoLab
+    <html
+      lang="pt-BR"
+      className={`dark ${bigShoulders.variable} ${workSans.variable} ${ibmPlexMono.variable}`}
+    >
+      <body className="font-body antialiased min-h-screen bg-background text-foreground">
+        <header className="border-b border-[#3A3A3A] bg-[#0A0A0A]">
+          <nav className="container max-w-3xl mx-auto px-4 h-14 flex items-center gap-6">
+            <Link
+              href="/"
+              className="font-display font-bold text-sm tracking-widest uppercase text-[#C8A96E]"
+            >
+              VERSA VISUAL
             </Link>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <Link
-                href="/simulator"
-                className="hover:text-foreground transition-colors"
-              >
-                Simulador
-              </Link>
-              <Link
-                href="/scenarios"
-                className="hover:text-foreground transition-colors"
-              >
-                Cenários
-              </Link>
-              <Link
-                href="/library"
-                className="hover:text-foreground transition-colors"
-              >
-                Biblioteca
-              </Link>
-              <Link
-                href="/dashboard"
-                className="hover:text-foreground transition-colors"
-              >
-                Painel
-              </Link>
-            </div>
-          </div>
-        </nav>
+            <Link
+              href="/dashboard"
+              className="text-sm text-[#8A8A8A] hover:text-[#FAFAFA] transition-colors font-body"
+            >
+              Painel
+            </Link>
+            <Link
+              href="/scenarios"
+              className="text-sm text-[#8A8A8A] hover:text-[#FAFAFA] transition-colors font-body"
+            >
+              Cenários
+            </Link>
+            <Link
+              href="/simulator"
+              className="text-sm text-[#8A8A8A] hover:text-[#FAFAFA] transition-colors font-body"
+            >
+              Simulador
+            </Link>
+            <Link
+              href="/library"
+              className="text-sm text-[#8A8A8A] hover:text-[#FAFAFA] transition-colors font-body"
+            >
+              Biblioteca
+            </Link>
+          </nav>
+        </header>
         {children}
       </body>
     </html>
