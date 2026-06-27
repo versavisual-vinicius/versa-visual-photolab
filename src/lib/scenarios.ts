@@ -7,7 +7,10 @@ export const SCENARIOS: Scenario[] = [
     description:
       "Luz intensa, areia reflexiva. O sol bate forte e o mar está agitado.",
     emoji: "🏖️",
-    imageUrl: "/scenarios/praia-normal.png",
+    imageUrl: "/scenarios/praia-normal.jpg",
+    imageUrls: {
+      under: "/scenarios/praia-sub.jpg",
+    },
     ambientLight: 15,
     challenge: {
       description:
@@ -33,7 +36,10 @@ export const SCENARIOS: Scenario[] = [
     title: "Estúdio",
     description: "Luz artificial controlada, fundo neutro. Sessão de produto.",
     emoji: "🎬",
-    imageUrl: "/scenarios/estudio-normal.png",
+    imageUrl: "/scenarios/estudio-normal.jpg",
+    imageUrls: {
+      under: "/scenarios/estudio-sub.jpg",
+    },
     ambientLight: 10,
     challenge: {
       description:
