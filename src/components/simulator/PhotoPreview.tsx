@@ -9,12 +9,12 @@ interface Props {
 }
 
 function getBrightness(delta: number): number {
-  if (delta < -3) return 5;
-  if (delta < -2) return 20;
-  if (delta < -1) return 50;
-  if (delta < 0) return 75;
-  if (delta <= 1) return 100;
-  if (delta <= 2) return 130;
+  if (delta > 3) return 5;
+  if (delta > 2) return 20;
+  if (delta > 1) return 50;
+  if (delta > 0) return 75;
+  if (delta >= -1) return 100;
+  if (delta >= -2) return 130;
   return 180;
 }
 
@@ -25,8 +25,8 @@ function resolveImage(
 ): string | undefined {
   if (!imageUrl) return undefined;
   if (imageUrls) {
-    if (evDelta < -1 && imageUrls.under) return imageUrls.under;
-    if (evDelta > 1 && imageUrls.over) return imageUrls.over;
+    if (evDelta > 1 && imageUrls.under) return imageUrls.under;
+    if (evDelta < -1 && imageUrls.over) return imageUrls.over;
   }
   return imageUrl;
 }
@@ -43,8 +43,8 @@ export default function PhotoPreview({
 
   return (
     <div
-      className="relative rounded-lg overflow-hidden border border-border"
-      style={{ aspectRatio: "4/3", background: "#1e293b" }}
+      className="relative overflow-hidden border border-[#3A3A3A]"
+      style={{ aspectRatio: "4/3", background: "#0A0A0A", borderRadius: "2px" }}
     >
       {activeImage ? (
         <div
@@ -77,39 +77,71 @@ export default function PhotoPreview({
         />
       )}
 
-      <div className="absolute top-2 left-2 flex flex-col gap-1">
+      {/* Badges — paleta exclusiva Versa, sem cores externas */}
+      <div className="absolute top-2 left-2 flex flex-col gap-1.5">
         {result.isUnderexposed && (
-          <span className="bg-blue-900/80 text-blue-200 text-xs px-2 py-0.5 rounded">
+          <span
+            className="text-sm font-medium px-2.5 py-1 font-body"
+            style={{
+              background: "#3A3A3A",
+              color: "#FAFAFA",
+              borderRadius: "2px",
+            }}
+          >
             Subexposta
           </span>
         )}
         {result.isOverexposed && (
-          <span className="bg-yellow-900/80 text-yellow-200 text-xs px-2 py-0.5 rounded">
+          <span
+            className="text-sm font-medium px-2.5 py-1 font-body"
+            style={{
+              background: "#FAFAFA",
+              color: "#0A0A0A",
+              borderRadius: "2px",
+            }}
+          >
             Superexposta
           </span>
         )}
         {result.hasNoise && (
-          <span className="bg-red-900/80 text-red-200 text-xs px-2 py-0.5 rounded">
+          <span
+            className="text-sm font-medium px-2.5 py-1 font-body"
+            style={{
+              background: "#3A3A3A",
+              color: "#8A8A8A",
+              borderRadius: "2px",
+            }}
+          >
             Ruído
           </span>
         )}
         {result.hasMotionBlur && (
-          <span className="bg-purple-900/80 text-purple-200 text-xs px-2 py-0.5 rounded">
-            Tremido
+          <span
+            className="text-sm font-medium px-2.5 py-1 font-body"
+            style={{
+              background: "#3A3A3A",
+              color: "#8A8A8A",
+              borderRadius: "2px",
+            }}
+          >
+            Tremida
           </span>
         )}
         {!result.isUnderexposed &&
           !result.isOverexposed &&
           !result.hasNoise &&
           !result.hasMotionBlur && (
-            <span className="bg-green-900/80 text-green-200 text-xs px-2 py-0.5 rounded">
-              ✓ Exposta
+            <span
+              className="text-sm font-medium px-2.5 py-1 font-body"
+              style={{
+                background: "#C8A96E",
+                color: "#0A0A0A",
+                borderRadius: "2px",
+              }}
+            >
+              Exposta
             </span>
           )}
-      </div>
-
-      <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-mono px-2 py-0.5 rounded">
-        EV {result.ev.toFixed(1)} / cena {result.evScene}
       </div>
     </div>
   );
