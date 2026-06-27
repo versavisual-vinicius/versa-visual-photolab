@@ -62,8 +62,11 @@ export const SCENARIOS: Scenario[] = [
     description:
       "Sala iluminada por janela + luz artificial. Pouca luz disponível.",
     emoji: "🏠",
-    imageUrl:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80",
+    imageUrl: "/scenarios/ambiente-interno-normal.png",
+    imageUrls: {
+      under: "/scenarios/ambiente-interno-sub.png",
+      over: "/scenarios/ambiente-interno-over.png",
+    },
     ambientLight: 7,
     challenge: {
       description:
@@ -90,8 +93,11 @@ export const SCENARIOS: Scenario[] = [
     description:
       "Paisagem aberta, luz natural variável, vegetação com vento suave.",
     emoji: "🌿",
-    imageUrl:
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=900&q=80",
+    imageUrl: "/scenarios/campo-normal.png",
+    imageUrls: {
+      under: "/scenarios/campo-sub.png",
+      over: "/scenarios/campo-over.png",
+    },
     ambientLight: 13,
     challenge: {
       description:
@@ -118,8 +124,10 @@ export const SCENARIOS: Scenario[] = [
     description:
       "Sala de estar com luz de abajur e TV. Pouca luz, espaço pequeno.",
     emoji: "🛋️",
-    imageUrl:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80",
+    imageUrl: "/scenarios/casa-normal.png",
+    imageUrls: {
+      under: "/scenarios/casa-sub.png",
+    },
     ambientLight: 6,
     challenge: {
       description:

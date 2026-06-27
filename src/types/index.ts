@@ -41,6 +41,7 @@ export interface Scenario {
   description: string;
   emoji: string;
   imageUrl: string;
+  imageUrls?: { under?: string; over?: string };
   ambientLight: number;
   challenge: ScenarioChallenge;
   ideal: ScenarioIdealSettings;

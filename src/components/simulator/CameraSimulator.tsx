@@ -21,6 +21,7 @@ interface Props {
   initialSettings?: Partial<CameraSettings>;
   scenarioEmoji?: string;
   imageUrl?: string;
+  imageUrls?: { under?: string; over?: string };
   locked?: Partial<Record<keyof CameraSettings, boolean>>;
   onShoot?: (settings: CameraSettings) => void;
   shootLabel?: string;
@@ -30,6 +31,7 @@ export default function CameraSimulator({
   initialSettings,
   scenarioEmoji,
   imageUrl,
+  imageUrls,
   locked,
   onShoot,
   shootLabel = "Fotografar",
@@ -51,6 +53,7 @@ export default function CameraSimulator({
           result={result}
           scenarioEmoji={scenarioEmoji}
           imageUrl={imageUrl}
+          imageUrls={imageUrls}
         />
         <DepthOfFieldVisualizer settings={settings} result={result} />
         <CameraControls

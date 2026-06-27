@@ -60,6 +60,7 @@ export default function ScenarioPage({
         initialSettings={{ ambientLight: scenario.ambientLight }}
         scenarioEmoji={scenario.emoji}
         imageUrl={scenario.imageUrl}
+        imageUrls={scenario.imageUrls}
         onShoot={handleShoot}
         shootLabel="Fotografar e avaliar"
       />

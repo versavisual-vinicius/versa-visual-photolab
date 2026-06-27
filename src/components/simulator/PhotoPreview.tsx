@@ -5,6 +5,7 @@ interface Props {
   result: ExposureResult;
   scenarioEmoji?: string;
   imageUrl?: string;
+  imageUrls?: { under?: string; over?: string };
 }
 
 function getBrightness(delta: number): number {
@@ -17,24 +18,39 @@ function getBrightness(delta: number): number {
   return 180;
 }
 
+function resolveImage(
+  evDelta: number,
+  imageUrl?: string,
+  imageUrls?: { under?: string; over?: string },
+): string | undefined {
+  if (!imageUrl) return undefined;
+  if (imageUrls) {
+    if (evDelta < -1 && imageUrls.under) return imageUrls.under;
+    if (evDelta > 1 && imageUrls.over) return imageUrls.over;
+  }
+  return imageUrl;
+}
+
 export default function PhotoPreview({
   result,
   scenarioEmoji = "🏖️",
   imageUrl,
+  imageUrls,
 }: Props) {
   const brightness = getBrightness(result.evDelta);
   const blurPx = result.hasMotionBlur ? 3 : 0;
+  const activeImage = resolveImage(result.evDelta, imageUrl, imageUrls);
 
   return (
     <div
       className="relative rounded-lg overflow-hidden border border-border"
       style={{ aspectRatio: "4/3", background: "#1e293b" }}
     >
-      {imageUrl ? (
+      {activeImage ? (
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-300"
           style={{
-            backgroundImage: `url(${imageUrl})`,
+            backgroundImage: `url(${activeImage})`,
             filter: `brightness(${brightness}%) blur(${blurPx}px)`,
           }}
         />
