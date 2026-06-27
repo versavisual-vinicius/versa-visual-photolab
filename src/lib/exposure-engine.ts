@@ -10,7 +10,7 @@ const COC_MM = 0.029;
 
 export function calculateExposure(s: CameraSettings): ExposureResult {
   const ev100 = Math.log2(s.aperture ** 2 / s.shutterSpeed);
-  const ev = ev100 - Math.log2(s.iso / 100);
+  const ev = ev100 + Math.log2(s.iso / 100);
   const evScene = s.ambientLight;
   const evDelta = ev - evScene;
 
@@ -28,8 +28,8 @@ export function calculateExposure(s: CameraSettings): ExposureResult {
     ev,
     evScene,
     evDelta,
-    isUnderexposed: evDelta > 0,
-    isOverexposed: evDelta < -1,
+    isUnderexposed: evDelta < -1,
+    isOverexposed: evDelta > 1,
     hasNoise: s.iso >= 3200,
     hasMotionBlur: s.shutterSpeed > 1 / 60 && !s.tripod,
     dofMm,
@@ -49,7 +49,7 @@ export function scoreAttempt(
   let dofScore = 20;
 
   const idealEV =
-    Math.log2(ideal.aperture ** 2 / ideal.shutterSpeed) -
+    Math.log2(ideal.aperture ** 2 / ideal.shutterSpeed) +
     Math.log2(ideal.iso / 100);
   const evDiffFromIdeal = result.ev - idealEV;
   const absDelta = Math.abs(evDiffFromIdeal);
@@ -61,11 +61,11 @@ export function scoreAttempt(
     exposureScore = Math.max(0, 40 - penalty);
     if (evDiffFromIdeal > 0) {
       messages.push(
-        "A foto ficou escura demais — aumente o ISO, abra a abertura ou diminua a velocidade.",
+        "A foto ficou clara demais (superexposta) — reduza o ISO, feche a abertura ou aumente a velocidade.",
       );
     } else {
       messages.push(
-        "A foto ficou clara demais (superexposta) — reduza o ISO, feche a abertura ou aumente a velocidade.",
+        "A foto ficou escura demais — aumente o ISO, abra a abertura ou diminua a velocidade.",
       );
     }
   }

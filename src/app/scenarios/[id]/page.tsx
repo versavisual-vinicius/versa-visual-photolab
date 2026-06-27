@@ -57,7 +57,12 @@ export default function ScenarioPage({
       </div>
 
       <CameraSimulator
-        initialSettings={{ ambientLight: scenario.ambientLight }}
+        initialSettings={{
+          ambientLight: scenario.ambientLight,
+          iso: scenario.ideal.iso,
+          aperture: scenario.ideal.aperture,
+          shutterSpeed: scenario.ideal.shutterSpeed,
+        }}
         scenarioEmoji={scenario.emoji}
         imageUrl={scenario.imageUrl}
         imageUrls={scenario.imageUrls}
