@@ -10,6 +10,7 @@ export const SCENARIOS: Scenario[] = [
     imageUrl: "/scenarios/praia-normal.jpg",
     imageUrls: {
       under: "/scenarios/praia-sub.jpg",
+      over: "/scenarios/praia-over.jpg",
     },
     ambientLight: 15,
     challenge: {
