@@ -40,7 +40,7 @@ export default function RootLayout({
       className={`dark ${bigShoulders.variable} ${workSans.variable} ${ibmPlexMono.variable}`}
     >
       <body className="font-body antialiased min-h-screen bg-background text-foreground">
-        <header className="border-b border-[#3A3A3A] bg-[#0A0A0A]">
+        <header className="sticky top-0 z-50 border-b border-[#3A3A3A] bg-[#0A0A0A] backdrop-blur-sm">
           <nav className="container max-w-3xl mx-auto px-4 h-14 flex items-center gap-6">
             <Link
               href="/"
