@@ -4,6 +4,7 @@ import type { ExposureResult } from "@/types";
 interface Props {
   result: ExposureResult;
   scenarioEmoji?: string;
+  imageUrl?: string;
 }
 
 function getBrightness(delta: number): number {
@@ -16,7 +17,11 @@ function getBrightness(delta: number): number {
   return 180;
 }
 
-export default function PhotoPreview({ result, scenarioEmoji = "🏖️" }: Props) {
+export default function PhotoPreview({
+  result,
+  scenarioEmoji = "🏖️",
+  imageUrl,
+}: Props) {
   const brightness = getBrightness(result.evDelta);
   const blurPx = result.hasMotionBlur ? 3 : 0;
 
@@ -25,15 +30,25 @@ export default function PhotoPreview({ result, scenarioEmoji = "🏖️" }: Prop
       className="relative rounded-lg overflow-hidden border border-border"
       style={{ aspectRatio: "4/3", background: "#1e293b" }}
     >
-      <div
-        className="absolute inset-0 flex items-center justify-center text-8xl transition-all duration-300"
-        style={{
-          filter: `brightness(${brightness}%) blur(${blurPx}px)`,
-          background: `hsl(${220 + result.evDelta * 5}, 20%, ${20 + brightness * 0.3}%)`,
-        }}
-      >
-        {scenarioEmoji}
-      </div>
+      {imageUrl ? (
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-all duration-300"
+          style={{
+            backgroundImage: `url(${imageUrl})`,
+            filter: `brightness(${brightness}%) blur(${blurPx}px)`,
+          }}
+        />
+      ) : (
+        <div
+          className="absolute inset-0 flex items-center justify-center text-8xl transition-all duration-300"
+          style={{
+            filter: `brightness(${brightness}%) blur(${blurPx}px)`,
+            background: `hsl(${220 + result.evDelta * 5}, 20%, ${20 + brightness * 0.3}%)`,
+          }}
+        >
+          {scenarioEmoji}
+        </div>
+      )}
 
       {result.hasNoise && (
         <div

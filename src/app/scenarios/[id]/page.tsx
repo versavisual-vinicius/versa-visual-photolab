@@ -59,6 +59,7 @@ export default function ScenarioPage({
       <CameraSimulator
         initialSettings={{ ambientLight: scenario.ambientLight }}
         scenarioEmoji={scenario.emoji}
+        imageUrl={scenario.imageUrl}
         onShoot={handleShoot}
         shootLabel="Fotografar e avaliar"
       />

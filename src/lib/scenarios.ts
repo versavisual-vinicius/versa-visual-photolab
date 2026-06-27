@@ -7,6 +7,8 @@ export const SCENARIOS: Scenario[] = [
     description:
       "Luz intensa, areia reflexiva. O sol bate forte e o mar está agitado.",
     emoji: "🏖️",
+    imageUrl:
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&q=80",
     ambientLight: 15,
     challenge: {
       description:
@@ -32,6 +34,8 @@ export const SCENARIOS: Scenario[] = [
     title: "Estúdio",
     description: "Luz artificial controlada, fundo neutro. Sessão de produto.",
     emoji: "🎬",
+    imageUrl:
+      "https://images.unsplash.com/photo-1606103836293-0a063ee20566?w=900&q=80",
     ambientLight: 10,
     challenge: {
       description:
@@ -58,6 +62,8 @@ export const SCENARIOS: Scenario[] = [
     description:
       "Sala iluminada por janela + luz artificial. Pouca luz disponível.",
     emoji: "🏠",
+    imageUrl:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80",
     ambientLight: 7,
     challenge: {
       description:
@@ -84,6 +90,8 @@ export const SCENARIOS: Scenario[] = [
     description:
       "Paisagem aberta, luz natural variável, vegetação com vento suave.",
     emoji: "🌿",
+    imageUrl:
+      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=900&q=80",
     ambientLight: 13,
     challenge: {
       description:
@@ -110,6 +118,8 @@ export const SCENARIOS: Scenario[] = [
     description:
       "Sala de estar com luz de abajur e TV. Pouca luz, espaço pequeno.",
     emoji: "🛋️",
+    imageUrl:
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80",
     ambientLight: 6,
     challenge: {
       description:

@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: CameraSettings = {
 interface Props {
   initialSettings?: Partial<CameraSettings>;
   scenarioEmoji?: string;
+  imageUrl?: string;
   locked?: Partial<Record<keyof CameraSettings, boolean>>;
   onShoot?: (settings: CameraSettings) => void;
   shootLabel?: string;
@@ -28,6 +29,7 @@ interface Props {
 export default function CameraSimulator({
   initialSettings,
   scenarioEmoji,
+  imageUrl,
   locked,
   onShoot,
   shootLabel = "Fotografar",
@@ -45,7 +47,11 @@ export default function CameraSimulator({
         <CardTitle className="text-base">Simulador de Câmera</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <PhotoPreview result={result} scenarioEmoji={scenarioEmoji} />
+        <PhotoPreview
+          result={result}
+          scenarioEmoji={scenarioEmoji}
+          imageUrl={imageUrl}
+        />
         <DepthOfFieldVisualizer settings={settings} result={result} />
         <CameraControls
           settings={settings}

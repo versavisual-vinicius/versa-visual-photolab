@@ -40,6 +40,7 @@ export interface Scenario {
   title: string;
   description: string;
   emoji: string;
+  imageUrl: string;
   ambientLight: number;
   challenge: ScenarioChallenge;
   ideal: ScenarioIdealSettings;
