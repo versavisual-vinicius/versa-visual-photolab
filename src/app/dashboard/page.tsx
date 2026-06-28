@@ -1,23 +1,72 @@
+"use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { SCENARIOS } from "@/lib/scenarios";
 import { CONCEPTS } from "@/lib/concepts";
+import { getLocalProgress } from "@/lib/local-progress";
+import {
+  createClient,
+  getUserProgress,
+  isSupabaseConfigured,
+} from "@/lib/supabase";
 import XPCounter from "@/components/ui/XPCounter";
 import ProgressBar from "@/components/ui/ProgressBar";
-
-export const metadata = { title: "Painel — Versa Visual PhotoLab" };
+import type { UserProgress } from "@/types";
 
 export default function DashboardPage() {
+  const [progress, setProgress] = useState<UserProgress>({
+    xp: 0,
+    scenariosCompleted: [],
+    conceptsRead: [],
+  });
+
+  useEffect(() => {
+    const load = async () => {
+      setProgress(getLocalProgress());
+      if (!isSupabaseConfigured()) return;
+
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return;
+        const data = await getUserProgress(user.id);
+        setProgress(data);
+      } catch {
+        setProgress(getLocalProgress());
+      }
+    };
+    load();
+  }, []);
+
+  const scenariosCompleted = progress.scenariosCompleted.length;
+  const conceptsRead = progress.conceptsRead.length;
+  const scenarioProgress =
+    SCENARIOS.length > 0 ? (scenariosCompleted / SCENARIOS.length) * 100 : 0;
+  const conceptProgress =
+    CONCEPTS.length > 0 ? (conceptsRead / CONCEPTS.length) * 100 : 0;
+
   return (
     <main className="container max-w-3xl mx-auto py-8 px-4 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Painel de Treino</h1>
-        <XPCounter xp={0} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Modo visitante</p>
+          <h1 className="text-2xl font-bold">Painel de Treino</h1>
+          <p className="text-sm text-muted-foreground">
+            Seu progresso fica salvo neste navegador. Login é opcional.
+          </p>
+        </div>
+        <XPCounter xp={progress.xp} />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="rounded-lg border border-border p-5 space-y-3">
           <h2 className="font-semibold">🎯 Cenários</h2>
-          <ProgressBar value={0} label={`0 / ${SCENARIOS.length} concluídos`} />
+          <ProgressBar
+            value={scenarioProgress}
+            label={`${scenariosCompleted} / ${SCENARIOS.length} concluídos`}
+          />
           <div className="space-y-2 mt-2">
             {SCENARIOS.map((s) => (
               <Link
@@ -35,8 +84,8 @@ export default function DashboardPage() {
         <div className="rounded-lg border border-border p-5 space-y-3">
           <h2 className="font-semibold">📚 Biblioteca</h2>
           <ProgressBar
-            value={0}
-            label={`0 / ${CONCEPTS.length} conceitos lidos`}
+            value={conceptProgress}
+            label={`${conceptsRead} / ${CONCEPTS.length} conceitos lidos`}
           />
           <div className="space-y-2 mt-2">
             {CONCEPTS.map((c) => (

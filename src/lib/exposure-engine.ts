@@ -61,11 +61,11 @@ export function scoreAttempt(
     exposureScore = Math.max(0, 40 - penalty);
     if (evDiffFromIdeal > 0) {
       messages.push(
-        "A foto ficou clara demais (superexposta) — reduza o ISO, feche a abertura ou aumente a velocidade.",
+        "A foto ficou clara demais (superexposta) — reduza o ISO, feche a abertura ou use uma velocidade mais rápida.",
       );
     } else {
       messages.push(
-        "A foto ficou escura demais — aumente o ISO, abra a abertura ou diminua a velocidade.",
+        "A foto ficou escura demais — aumente o ISO, abra a abertura ou use uma velocidade mais lenta.",
       );
     }
   }

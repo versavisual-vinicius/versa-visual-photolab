@@ -1,15 +1,41 @@
+"use client";
+import { use, useEffect } from "react";
 import { notFound } from "next/navigation";
 import { getConcept } from "@/lib/concepts";
+import { markLocalConceptRead } from "@/lib/local-progress";
+import {
+  createClient,
+  isSupabaseConfigured,
+  markConceptRead,
+} from "@/lib/supabase";
 import Link from "next/link";
 
-export default async function ConceptPage({
+export default function ConceptPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const { slug } = use(params);
   const concept = getConcept(slug);
   if (!concept) notFound();
+
+  useEffect(() => {
+    const track = async () => {
+      markLocalConceptRead(slug);
+      if (!isSupabaseConfigured()) return;
+
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) await markConceptRead(user.id, slug);
+      } catch {
+        // Leitura local já foi salva; sincronização é opcional.
+      }
+    };
+    track();
+  }, [slug]);
 
   const sections = concept.body
     .split("\n\n")

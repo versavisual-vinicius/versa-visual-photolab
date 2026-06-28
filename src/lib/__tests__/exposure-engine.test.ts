@@ -19,13 +19,13 @@ describe("calculateExposure", () => {
     expect(result.ev).toBeCloseTo(11.94, 1);
   });
 
-  it("marks as underexposed when EV is more than 1 stop below scene", () => {
-    const dark = { ...baseSettings, shutterSpeed: 1 / 4000, iso: 100 };
+  it("marks as underexposed when camera EV is more than 1 stop above scene", () => {
+    const dark = { ...baseSettings, shutterSpeed: 1 / 16000, iso: 100 };
     const result = calculateExposure(dark);
     expect(result.isUnderexposed).toBe(true);
   });
 
-  it("marks as overexposed when EV is more than 1 stop above scene", () => {
+  it("marks as overexposed when camera EV is more than 1 stop below scene", () => {
     const bright = { ...baseSettings, iso: 12800, shutterSpeed: 1 / 30 };
     const result = calculateExposure(bright);
     expect(result.isOverexposed).toBe(true);
@@ -34,6 +34,12 @@ describe("calculateExposure", () => {
   it("detects noise at ISO >= 3200", () => {
     const noisy = { ...baseSettings, iso: 3200 };
     expect(calculateExposure(noisy).hasNoise).toBe(true);
+  });
+
+  it("lowers camera EV when ISO goes up", () => {
+    const lowIso = calculateExposure({ ...baseSettings, iso: 100 });
+    const highIso = calculateExposure({ ...baseSettings, iso: 800 });
+    expect(highIso.ev).toBeLessThan(lowIso.ev);
   });
 
   it("no noise below ISO 3200", () => {

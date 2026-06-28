@@ -1,26 +1,49 @@
 "use client";
-import { createClient } from "@/lib/supabase";
+import { useState } from "react";
+import Link from "next/link";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase";
 
 export default function LoginPage() {
+  const [message, setMessage] = useState<string | null>(null);
+
   const handleLogin = async () => {
+    if (!isSupabaseConfigured()) {
+      setMessage("Sincronização ainda não configurada. Continue sem login.");
+      return;
+    }
+
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+
+    if (error) setMessage("Não foi possível iniciar o login agora.");
   };
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-sm w-full space-y-6 text-center">
+      <div className="max-w-md w-full space-y-7 text-center">
         <div>
           <p className="text-4xl mb-3">📸</p>
           <h1 className="text-2xl font-bold">Versa Visual · PhotoLab</h1>
           <p className="text-muted-foreground mt-2">
-            Aprenda fotografia praticando com simulações reais.
+            Você pode treinar de graça sem conta. O Google só sincroniza seu
+            progresso entre dispositivos.
           </p>
+        </div>
+        <Link
+          href="/scenarios"
+          className="block w-full rounded-lg bg-primary px-4 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          Continuar sem login
+        </Link>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          <span>opcional</span>
+          <span className="h-px flex-1 bg-border" />
         </div>
         <button
           onClick={handleLogin}
@@ -47,8 +70,13 @@ export default function LoginPage() {
           Entrar com Google
         </button>
         <p className="text-xs text-muted-foreground">
-          Ao entrar, você concorda em salvar seu progresso de treino.
+          Sem login, o progresso fica salvo apenas neste navegador.
         </p>
+        {message && (
+          <p className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+            {message}
+          </p>
+        )}
       </div>
     </main>
   );

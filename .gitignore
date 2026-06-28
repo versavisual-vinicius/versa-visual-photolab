@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Raw scenario source images (long Portuguese names)
+public/scenarios/*_202606271133.jpeg
+public/scenarios/Hiperexposta_*.jpeg
+public/scenarios/Subexposta_*.jpeg
+public/scenarios/Praia-hiperexposta.jpeg
+public/scenarios/Estudio-hiper-exposta.jpeg
+"public/scenarios/Subexposta_-_Estúdio_.jpeg"
+public/scenarios/Edite_*.jpeg

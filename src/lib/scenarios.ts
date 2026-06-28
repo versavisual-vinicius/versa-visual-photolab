@@ -42,7 +42,7 @@ export const SCENARIOS: Scenario[] = [
       under: "/scenarios/estudio-sub.jpg",
       over: "/scenarios/estudio-over.jpg",
     },
-    ambientLight: 10,
+    ambientLight: 9,
     challenge: {
       description:
         "Fotografe o produto com exposição perfeita e fundo levemente desfocado.",
@@ -73,7 +73,7 @@ export const SCENARIOS: Scenario[] = [
       under: "/scenarios/ambiente-interno-sub.jpg",
       over: "/scenarios/ambiente-interno-over.jpg",
     },
-    ambientLight: 7,
+    ambientLight: 6,
     challenge: {
       description:
         "Fotografe sem tripé. Evite tremido e mantenha o ruído aceitável.",
@@ -135,7 +135,7 @@ export const SCENARIOS: Scenario[] = [
       under: "/scenarios/casa-sub.jpg",
       over: "/scenarios/casa-over.jpg",
     },
-    ambientLight: 6,
+    ambientLight: 4,
     challenge: {
       description:
         "Fotografe um objeto doméstico. Equilíbrio entre ruído e tremido.",
