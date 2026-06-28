@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VERSAVISUAL · PhotoLab Simulador
 
-## Getting Started
+Simulador fotográfico interativo para aprender os fundamentos de exposição — ISO, abertura e velocidade do obturador — com cenários reais e física de câmera baseada na Lei da Reciprocidade.
 
-First, run the development server:
+🔗 **[versa-visual-photolab.vercel.app](https://versa-visual-photolab.vercel.app)**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## O que é
+
+Um simulador educacional onde o usuário ajusta os parâmetros de uma câmera (ISO, abertura, velocidade) e vê o resultado em tempo real: brilho da foto, bokeh, grain, e uma pontuação ao fotografar. Cada cenário tem uma configuração ideal e o app ensina por que aquela combinação funciona.
+
+## Cenários disponíveis
+
+| Cenário | Desafio principal |
+|---------|-------------------|
+| 🏖️ Praia | Congelar onda sem superexpor |
+| 🎬 Estúdio | Produto com fundo desfocado |
+| 🏠 Ambiente Interno | Sem tripé, sem tremido |
+| 🌿 Campo | Tudo em foco do primeiro plano ao horizonte |
+| 🛋️ Casa | Objeto doméstico com pouca luz |
+
+Cada cenário tem 3 variantes fotográficas reais (subexposta / normal / superexposta) que trocam dinamicamente com base no EV calculado.
+
+## Motor de física
+
+A exposição é calculada pela Equação de Valor de Exposição:
+
+```
+EV = log₂(N² / t) + log₂(ISO / 100)
+evDelta = EV - evCena
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `evDelta < -1` → subexposto (foto escura) → troca para variante `sub`
+- `-1 ≤ evDelta ≤ 1` → exposição correta → variante `normal`
+- `evDelta > 1` → superexposto (foto clara) → variante `over`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+A função `getBrightness(evDelta)` aplica um filtro CSS `brightness()` para variações finas dentro de cada faixa.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Stack
 
-## Learn More
+- **Next.js 15** (App Router)
+- **TypeScript**
+- **Tailwind CSS** + paleta VERSAVISUAL (ouro `#C8A96E`, fundo `#0A0A0A`)
+- **Supabase** — Auth (Google OAuth) + progresso/XP por usuário
+- **Vercel** — deploy automático
 
-To learn more about Next.js, take a look at the following resources:
+## Setup local
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+git clone https://github.com/versavisual-vinicius/versa-visual-photolab
+cd versa-visual-photolab
+npm install
+cp .env.local.example .env.local
+# preencha NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Acesse `http://localhost:3000`.
 
-## Deploy on Vercel
+## Variáveis de ambiente
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-anon-key
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O simulador funciona sem Supabase configurado (modo visitante com progresso local no navegador).
+
+## Schema Supabase
+
+```sql
+create table attempts (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  scenario_id text not null,
+  settings jsonb not null,
+  score integer not null,
+  feedback jsonb,
+  created_at timestamptz default now()
+);
+alter table attempts enable row level security;
+create policy "Users see own attempts" on attempts for all
+  to authenticated
+  using ( (select auth.uid()) = user_id )
+  with check ( (select auth.uid()) = user_id );
+
+create table user_progress (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null unique,
+  xp integer default 0,
+  scenarios_completed text[] default '{}',
+  concepts_read text[] default '{}',
+  updated_at timestamptz default now()
+);
+alter table user_progress enable row level security;
+create policy "Users manage own progress" on user_progress for all
+  to authenticated
+  using ( (select auth.uid()) = user_id )
+  with check ( (select auth.uid()) = user_id );
+```
+
+---
+
+Feito por [VERSAVISUAL](https://versavisual.com.br)
