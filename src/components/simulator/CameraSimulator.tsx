@@ -21,7 +21,6 @@ const DEFAULT_SETTINGS: CameraSettings = {
 
 interface Props {
   initialSettings?: Partial<CameraSettings>;
-  scenarioEmoji?: string;
   imageUrl?: string;
   imageUrls?: { under?: string; over?: string };
   locked?: Partial<Record<keyof CameraSettings, boolean>>;
@@ -31,7 +30,6 @@ interface Props {
 
 export default function CameraSimulator({
   initialSettings,
-  scenarioEmoji,
   imageUrl,
   imageUrls,
   locked,
@@ -43,6 +41,11 @@ export default function CameraSimulator({
     initialCameraSettings,
   );
   const result = useMemo(() => calculateExposure(settings), [settings]);
+  const statusText = result.isUnderexposed
+    ? "Subexposta"
+    : result.isOverexposed
+      ? "Superexposta"
+      : "Equilibrada";
 
   return (
     <Card
@@ -54,11 +57,11 @@ export default function CameraSimulator({
       }}
     >
       <CardHeader
-        className="space-y-2"
+        className="space-y-3 p-4 sm:p-5"
         style={{ borderBottom: "1px solid #3A3A3A" }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <CardTitle className="font-body font-semibold text-base text-[#FAFAFA]">
               Simulador de Câmera
             </CardTitle>
@@ -69,7 +72,7 @@ export default function CameraSimulator({
           <button
             type="button"
             onClick={() => setSettings(initialCameraSettings)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-body transition-colors cursor-pointer hover:text-[#FAFAFA]"
+            className="flex min-h-[44px] w-full items-center justify-center gap-1.5 px-3 py-2 text-xs font-body transition-colors cursor-pointer hover:text-[#FAFAFA] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C8A96E] sm:w-auto"
             style={{
               border: "1px solid #3A3A3A",
               color: "#8A8A8A",
@@ -81,16 +84,32 @@ export default function CameraSimulator({
             Resetar
           </button>
         </div>
+        <div className="grid grid-cols-3 border border-[#3A3A3A]">
+          {[
+            ["EV", `${result.evDelta > 0 ? "+" : ""}${result.evDelta.toFixed(1)}`],
+            ["Status", statusText],
+            ["Dist. focal", `${settings.focalLength}mm`],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="min-w-0 border-r border-[#3A3A3A] px-2 py-2 last:border-r-0 sm:px-3"
+            >
+              <p className="font-mono text-[9px] uppercase text-[#8A8A8A] [letter-spacing:0.16em]">
+                {label}
+              </p>
+              <p className="mt-1 truncate font-mono text-xs font-semibold text-[#C8A96E] sm:text-sm">
+                {value}
+              </p>
+            </div>
+          ))}
+        </div>
       </CardHeader>
 
-      <CardContent className="space-y-4 p-4">
-        {/* Layout: coluna única em mobile, 2 colunas em desktop */}
-        <div className="md:grid md:grid-cols-2 md:gap-6">
-          {/* Coluna esquerda: feedback visual */}
-          <div className="space-y-3">
+      <CardContent className="space-y-4 p-3 sm:p-4">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:gap-6">
+          <div className="space-y-3 lg:sticky lg:top-4 lg:self-start">
             <PhotoPreview
               result={result}
-              scenarioEmoji={scenarioEmoji}
               imageUrl={imageUrl}
               imageUrls={imageUrls}
             />
@@ -98,31 +117,22 @@ export default function CameraSimulator({
             <DepthOfFieldVisualizer settings={settings} result={result} />
           </div>
 
-          {/* Coluna direita: controles */}
-          <div className="space-y-4 mt-4 md:mt-0">
+          <div className="mt-4 space-y-4 lg:mt-0">
             <CameraControls
               settings={settings}
               onChange={setSettings}
               locked={locked}
             />
             {onShoot && (
-              <div className="px-4 pb-2">
-                {/* CTA primário: Ouro Versa — brand system */}
+              <div className="px-2 pb-2 sm:px-4">
                 <button
+                  type="button"
                   onClick={() => onShoot(settings)}
-                  className="w-full flex items-center justify-center gap-2 font-body font-semibold py-3 transition-colors cursor-pointer min-h-[44px]"
+                  className="w-full flex min-h-[48px] items-center justify-center gap-2 font-body font-semibold py-3 transition-colors cursor-pointer hover:bg-[#9A7A42] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C8A96E]"
                   style={{
                     background: "#C8A96E",
                     color: "#0A0A0A",
                     borderRadius: "2px",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background =
-                      "#9A7A42";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background =
-                      "#C8A96E";
                   }}
                 >
                   <Camera size={18} />

@@ -3,19 +3,8 @@ import type { ExposureResult } from "@/types";
 
 interface Props {
   result: ExposureResult;
-  scenarioEmoji?: string;
   imageUrl?: string;
   imageUrls?: { under?: string; over?: string };
-}
-
-function getBrightness(delta: number): number {
-  if (delta > 3) return 5;
-  if (delta > 2) return 20;
-  if (delta > 1) return 50;
-  if (delta > 0) return 75;
-  if (delta >= -1) return 100;
-  if (delta >= -2) return 130;
-  return 180;
 }
 
 function resolveImage(
@@ -33,11 +22,9 @@ function resolveImage(
 
 export default function PhotoPreview({
   result,
-  scenarioEmoji = "🏖️",
   imageUrl,
   imageUrls,
 }: Props) {
-  const brightness = getBrightness(result.evDelta);
   const activeImage = resolveImage(result.evDelta, imageUrl, imageUrls);
   const focalScale = result.focalScale;
   const baseScale = focalScale * (result.backgroundBlurPx > 0.05 ? 1.012 : 1);
@@ -48,8 +35,21 @@ export default function PhotoPreview({
     result.cameraShakeBlurPx,
   );
   const baseBlurPx = cameraShakeBlurPx + backgroundBlurPx;
-  const baseFilter = `brightness(${brightness}%) blur(${baseBlurPx.toFixed(2)}px)`;
-  const subjectFilter = `brightness(${brightness}%) blur(${subjectBlurPx.toFixed(2)}px)`;
+  const opticalFilter = ({
+    blurPx,
+    contrastOffset = 0,
+  }: {
+    blurPx: number;
+    contrastOffset?: number;
+  }) =>
+    [
+      `brightness(${result.previewBrightnessPercent.toFixed(0)}%)`,
+      `contrast(${Math.max(70, result.previewContrastPercent + contrastOffset).toFixed(0)}%)`,
+      `saturate(${result.previewSaturationPercent.toFixed(0)}%)`,
+      `blur(${blurPx.toFixed(2)}px)`,
+    ].join(" ");
+  const baseFilter = opticalFilter({ blurPx: baseBlurPx, contrastOffset: -4 });
+  const subjectFilter = opticalFilter({ blurPx: subjectBlurPx });
   const showSubjectPlane =
     result.backgroundBlurPx > 0.05 ||
     result.subjectMotionBlurPx > 0.05 ||
@@ -94,14 +94,23 @@ export default function PhotoPreview({
 
     return (
       <div
-        className="absolute inset-0 flex items-center justify-center text-8xl transition-all duration-300"
+        className="absolute inset-0 overflow-hidden transition-all duration-300"
         style={{
           ...commonStyle,
-          background: `hsl(${220 + result.evDelta * 5}, 20%, ${20 + brightness * 0.3}%)`,
+          background:
+            "linear-gradient(135deg, #111111 0%, #242424 48%, #0A0A0A 100%)",
         }}
         aria-hidden={masked}
       >
-        {scenarioEmoji}
+        <div className="absolute inset-x-[14%] top-[18%] h-[22%] border border-[#3A3A3A] bg-[#FAFAFA]" />
+        <div className="absolute inset-x-[18%] top-[46%] h-[10%] bg-[#C8A96E]" />
+        <div className="absolute bottom-[18%] left-[22%] h-[12%] w-[18%] bg-[#3A3A3A]" />
+        <div className="absolute bottom-[18%] right-[22%] h-[12%] w-[18%] bg-[#8A8A8A]" />
+        <div className="absolute left-1/2 top-1/2 h-[54%] w-px -translate-x-1/2 -translate-y-1/2 bg-[#3A3A3A]" />
+        <div className="absolute left-1/2 top-1/2 h-px w-[64%] -translate-x-1/2 -translate-y-1/2 bg-[#3A3A3A]" />
+        <p className="absolute bottom-4 left-4 font-mono text-[10px] uppercase text-[#8A8A8A] [letter-spacing:0.18em]">
+          preview sem imagem
+        </p>
       </div>
     );
   };
@@ -116,18 +125,26 @@ export default function PhotoPreview({
       {showSubjectPlane &&
         renderPlane({ filter: subjectFilter, scale: focalScale, masked: true })}
 
-      {result.hasNoise && (
+      {result.grainOpacity > 0 && (
         <div
-          className="absolute inset-0 mix-blend-overlay pointer-events-none"
+          className="absolute inset-0 mix-blend-screen pointer-events-none"
           style={{
-            opacity: 0.25,
+            opacity: result.grainOpacity,
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            backgroundSize: "cover",
+            backgroundSize: "160px 160px",
           }}
         />
       )}
 
-      {/* Badges — paleta exclusiva Versa, sem cores externas */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          opacity: result.vignetteOpacity,
+          background:
+            "radial-gradient(circle at 50% 44%, transparent 0%, transparent 52%, #000 100%)",
+        }}
+      />
+
       <div className="absolute top-2 left-2 flex flex-col gap-1.5">
         {result.isUnderexposed && (
           <span

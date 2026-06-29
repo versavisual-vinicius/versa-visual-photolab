@@ -79,10 +79,9 @@ function SliderRow({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="space-y-1.5">
-      <div className="flex justify-between items-start">
-        <div>
-          {/* Label: Work Sans medium */}
+    <div className="space-y-3 border border-[#3A3A3A] bg-[#111111] p-3 transition-colors focus-within:border-[#C8A96E] sm:p-3.5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <Label className="font-body font-medium text-[#FAFAFA] text-sm">
             {label}
           </Label>
@@ -95,9 +94,8 @@ function SliderRow({
             </p>
           )}
         </div>
-        {/* Valor técnico: IBM Plex Mono, Ouro Versa */}
         <span
-          className="font-mono font-semibold text-sm"
+          className="shrink-0 font-mono font-semibold text-sm"
           style={{ color: "#C8A96E" }}
         >
           {displayValue}
@@ -114,6 +112,7 @@ function SliderRow({
         }}
         disabled={disabled}
         aria-label={label}
+        className={disabled ? "opacity-50" : undefined}
       />
     </div>
   );
@@ -138,8 +137,7 @@ export default function CameraControls({
   const focalIdx = Math.max(0, FOCAL_LENGTHS.indexOf(settings.focalLength));
 
   return (
-    <div className="space-y-5 p-4">
-      {/* Grupo primário: Triângulo de Exposição */}
+    <div className="space-y-5 px-2 py-2 sm:px-4">
       <div className="space-y-4">
         <SectionLabel>Exposição</SectionLabel>
         <SliderRow
@@ -186,8 +184,7 @@ export default function CameraControls({
         />
       </div>
 
-      {/* Grupo secundário: Composição & Foco — menor ênfase visual */}
-      <div className="space-y-4 opacity-70">
+      <div className="space-y-4">
         <SectionLabel>Composição & Foco</SectionLabel>
         <SliderRow
           label="Distância focal"
@@ -213,14 +210,21 @@ export default function CameraControls({
           disabled={locked.subjectDistance}
           onChange={(v) => onChange({ ...settings, subjectDistance: v })}
         />
-        <div className="flex items-center gap-3 pt-1">
-          <Label className="font-body text-sm font-medium text-[#FAFAFA]">
-            Tripé
-          </Label>
+        <div className="flex items-center justify-between gap-3 border border-[#3A3A3A] bg-[#111111] p-3">
+          <div>
+            <Label className="font-body text-sm font-medium text-[#FAFAFA]">
+              Tripé
+            </Label>
+            <p className="mt-0.5 font-body text-xs text-[#8A8A8A]">
+              Reduz tremido em velocidades lentas.
+            </p>
+          </div>
           <button
+            type="button"
             onClick={() => onChange({ ...settings, tripod: !settings.tripod })}
             aria-pressed={settings.tripod}
-            className="min-h-[44px] px-4 py-2 font-body text-sm font-medium transition-colors cursor-pointer"
+            disabled={locked.tripod}
+            className="min-h-[44px] shrink-0 px-4 py-2 font-body text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C8A96E]"
             style={{
               background: settings.tripod ? "#C8A96E" : "transparent",
               color: settings.tripod ? "#0A0A0A" : "#8A8A8A",

@@ -1,7 +1,8 @@
 "use client";
 import { useState, use } from "react";
 import { notFound } from "next/navigation";
-import { Target, Lightbulb } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Lightbulb, Target } from "lucide-react";
 import { getScenario } from "@/lib/scenarios";
 import { calculateExposure, scoreAttempt } from "@/lib/exposure-engine";
 import { saveLocalAttempt } from "@/lib/local-progress";
@@ -59,50 +60,68 @@ export default function ScenarioPage({
   };
 
   return (
-    <main className="container max-w-2xl mx-auto py-8 px-4 space-y-6">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-3xl">{scenario.emoji}</span>
-          <h1 className="text-2xl font-bold">{scenario.title}</h1>
+    <main className="container mx-auto max-w-6xl px-4 py-5 sm:py-8">
+      <div className="mb-5 grid gap-4 lg:grid-cols-[1fr_420px] lg:items-end">
+        <div className="space-y-3">
+          <Link
+            href="/scenarios"
+            className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[#8A8A8A] transition-colors hover:text-[#FAFAFA] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C8A96E]"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            Cenários
+          </Link>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-3xl" aria-hidden="true">
+                {scenario.emoji}
+              </span>
+              <h1 className="text-2xl font-bold text-[#FAFAFA] sm:text-3xl">
+                {scenario.title}
+              </h1>
+            </div>
+            <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+              {scenario.description}
+            </p>
+          </div>
         </div>
-        <p className="text-muted-foreground">{scenario.description}</p>
-      </div>
 
-      <div
-        className="p-4"
-        style={{
-          border: "1px solid rgba(200,169,110,0.30)",
-          background: "rgba(200,169,110,0.06)",
-          borderRadius: "2px",
-        }}
-      >
-        <div
-          className="flex items-center gap-2 font-body font-medium mb-2"
-          style={{ color: "#C8A96E" }}
+        <section
+          className="p-4"
+          style={{
+            border: "1px solid rgba(200,169,110,0.30)",
+            background: "rgba(200,169,110,0.06)",
+            borderRadius: "2px",
+          }}
+          aria-labelledby="scenario-challenge"
         >
-          <Target size={15} aria-hidden="true" />
-          <span>Desafio</span>
-        </div>
-        <p className="font-body text-sm text-[#FAFAFA]">
-          {scenario.challenge.description}
-        </p>
-        <ul className="mt-3 space-y-1.5">
-          {scenario.challenge.hints.map((h, i) => (
-            <li
-              key={i}
-              className="font-body text-xs flex gap-2 items-start"
-              style={{ color: "#8A8A8A" }}
-            >
-              <Lightbulb
-                size={11}
-                className="mt-0.5 flex-shrink-0"
-                style={{ color: "#C8A96E" }}
-                aria-hidden="true"
-              />
-              {h}
-            </li>
-          ))}
-        </ul>
+          <div
+            className="flex items-center gap-2 font-body font-medium mb-2"
+            style={{ color: "#C8A96E" }}
+          >
+            <Target size={15} aria-hidden="true" />
+            <h2 id="scenario-challenge">Desafio</h2>
+          </div>
+          <p className="font-body text-sm leading-6 text-[#FAFAFA]">
+            {scenario.challenge.description}
+          </p>
+          <ul className="mt-3 space-y-2">
+            {scenario.challenge.hints.map((h, i) => (
+              <li
+                key={i}
+                className="font-body text-xs flex gap-2 items-start leading-5"
+                style={{ color: "#8A8A8A" }}
+              >
+                <Lightbulb
+                  size={12}
+                  className="mt-1 flex-shrink-0"
+                  style={{ color: "#C8A96E" }}
+                  aria-hidden="true"
+                />
+                <span>{h}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
 
       <CameraSimulator
@@ -112,7 +131,6 @@ export default function ScenarioPage({
           aperture: scenario.ideal.aperture,
           shutterSpeed: scenario.ideal.shutterSpeed,
         }}
-        scenarioEmoji={scenario.emoji}
         imageUrl={scenario.imageUrl}
         imageUrls={scenario.imageUrls}
         onShoot={handleShoot}
@@ -120,16 +138,18 @@ export default function ScenarioPage({
       />
 
       {feedback && attempt && (
-        <div className="space-y-4">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
           <ScoreCard score={feedback.score} />
           {savedLocally && (
-            <p className="rounded-lg border border-green-900/50 bg-green-950/30 px-4 py-3 text-sm text-green-200">
+            <p className="border border-[#3A3A3A] bg-[#111111] px-4 py-3 text-sm text-[#C8A96E] lg:col-span-2">
               Progresso salvo neste navegador. Entrar com Google é opcional e só
               serve para sincronizar depois.
             </p>
           )}
           <FeedbackPanel messages={feedback.messages} />
-          <SettingsComparator attempt={attempt} feedback={feedback} />
+          <div className="lg:col-span-2">
+            <SettingsComparator attempt={attempt} feedback={feedback} />
+          </div>
         </div>
       )}
     </main>

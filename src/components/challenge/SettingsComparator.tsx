@@ -39,8 +39,8 @@ export default function SettingsComparator({ attempt, feedback }: Props) {
   ];
 
   return (
-    <div className="rounded-lg border border-border overflow-hidden">
-      <div className="grid grid-cols-3 bg-muted/40 text-xs text-muted-foreground uppercase tracking-wide px-3 py-2">
+    <div className="overflow-hidden border border-[#3A3A3A] bg-[#0A0A0A]">
+      <div className="grid grid-cols-[0.8fr_1fr_1fr] bg-[#111111] px-3 py-2 font-mono text-[10px] uppercase text-[#8A8A8A] [letter-spacing:0.12em]">
         <span>Parâmetro</span>
         <span className="text-center">Sua tentativa</span>
         <span className="text-center">Configuração ideal</span>
@@ -48,15 +48,15 @@ export default function SettingsComparator({ attempt, feedback }: Props) {
       {rows.map(({ label, yours, ideal, ok }) => (
         <div
           key={label}
-          className="grid grid-cols-3 px-3 py-2 border-t border-border text-sm items-center"
+          className="grid min-h-[44px] grid-cols-[0.8fr_1fr_1fr] items-center border-t border-[#3A3A3A] px-3 py-2 text-sm"
         >
           <span className="text-muted-foreground">{label}</span>
           <span
-            className={`text-center font-mono ${ok ? "text-green-400" : "text-red-400"}`}
+            className={`text-center font-mono ${ok ? "text-[#C8A96E]" : "text-[#FAFAFA]"}`}
           >
             {yours}
           </span>
-          <span className="text-center font-mono text-slate-300">{ideal}</span>
+          <span className="text-center font-mono text-[#8A8A8A]">{ideal}</span>
         </div>
       ))}
     </div>

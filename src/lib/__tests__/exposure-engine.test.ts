@@ -56,6 +56,11 @@ describe("calculateExposure", () => {
     expect(calculateExposure(blurry).hasMotionBlur).toBe(true);
   });
 
+  it("does not mark a normal handheld 1/125s frame as motion blurred", () => {
+    const steady = { ...baseSettings, shutterSpeed: 1 / 125, tripod: false };
+    expect(calculateExposure(steady).hasMotionBlur).toBe(false);
+  });
+
   it("tripod removes camera shake but not slow-shutter subject blur", () => {
     const steady = { ...baseSettings, shutterSpeed: 1 / 10, tripod: true };
     const result = calculateExposure(steady);
@@ -134,6 +139,31 @@ describe("calculateExposure", () => {
     const ratio = calculateFocalLengthScale(85) / calculateFocalLengthScale(25);
 
     expect(ratio).toBeCloseTo(3.4, 1);
+  });
+
+  it("returns normalized preview filters from exposure and ISO", () => {
+    const neutral = calculateExposure(baseSettings);
+    const under = calculateExposure({
+      ...baseSettings,
+      shutterSpeed: 1 / 4000,
+      iso: 100,
+    });
+    const over = calculateExposure({
+      ...baseSettings,
+      shutterSpeed: 1 / 30,
+      iso: 3200,
+    });
+
+    expect(under.previewBrightnessPercent).toBeLessThan(
+      neutral.previewBrightnessPercent,
+    );
+    expect(over.previewBrightnessPercent).toBeGreaterThan(
+      neutral.previewBrightnessPercent,
+    );
+    expect(over.grainOpacity).toBeGreaterThan(0);
+    expect(over.previewSaturationPercent).toBeLessThan(
+      neutral.previewSaturationPercent,
+    );
   });
 });
 

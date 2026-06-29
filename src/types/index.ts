@@ -23,6 +23,11 @@ export interface ExposureResult {
   hasShallowDof: boolean;
   backgroundBlurPx: number;
   focalScale: number;
+  previewBrightnessPercent: number;
+  previewContrastPercent: number;
+  previewSaturationPercent: number;
+  grainOpacity: number;
+  vignetteOpacity: number;
 }
 
 export interface ScenarioChallenge {

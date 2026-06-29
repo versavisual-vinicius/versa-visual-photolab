@@ -17,6 +17,26 @@ export function calculateFocalLengthScale(focalLength: number) {
   return clamp(focalLength / FOCAL_LENGTH_REFERENCE_MM, 0.75, 6);
 }
 
+function calculatePreviewBrightness(evDelta: number) {
+  return clamp(100 - evDelta * 25, 8, 185);
+}
+
+function calculatePreviewContrast(evDelta: number) {
+  const exposureStress = Math.min(1, Math.abs(evDelta) / 3);
+  return clamp(108 - exposureStress * 24, 78, 112);
+}
+
+function calculatePreviewSaturation(evDelta: number, iso: number) {
+  const exposureStress = Math.min(1, Math.abs(evDelta) / 3);
+  const isoStress = Math.min(1, Math.max(0, Math.log2(iso / 800)) / 4);
+  return clamp(105 - exposureStress * 24 - isoStress * 10, 70, 108);
+}
+
+function calculateGrainOpacity(iso: number) {
+  if (iso <= 800) return 0;
+  return clamp(Math.log2(iso / 800) * 0.08, 0.08, 0.34);
+}
+
 export function calculateExposure(s: CameraSettings): ExposureResult {
   const ev100 = Math.log2(s.aperture ** 2 / s.shutterSpeed);
   const ev = ev100 - Math.log2(s.iso / 100);
@@ -33,7 +53,7 @@ export function calculateExposure(s: CameraSettings): ExposureResult {
     d >= hyperfocal ? Infinity : (hyperfocal * d) / (hyperfocal - (d - f));
   const dofMm = dofFar === Infinity ? 999999 : dofFar - dofNear;
 
-  const freezeShutter = 1 / 250;
+  const freezeShutter = 1 / 60;
   const subjectMotionBlurPx =
     s.shutterSpeed > freezeShutter
       ? clamp(Math.log2(s.shutterSpeed / freezeShutter) * 1.2, 0, 6)
@@ -78,6 +98,15 @@ export function calculateExposure(s: CameraSettings): ExposureResult {
           0,
           10,
         );
+  const previewBrightnessPercent = calculatePreviewBrightness(evDelta);
+  const previewContrastPercent = calculatePreviewContrast(evDelta);
+  const previewSaturationPercent = calculatePreviewSaturation(evDelta, s.iso);
+  const grainOpacity = calculateGrainOpacity(s.iso);
+  const vignetteOpacity = clamp(
+    0.1 + Math.max(0, s.focalLength - 50) / 260 + Math.abs(evDelta) * 0.025,
+    0.08,
+    0.26,
+  );
 
   return {
     ev,
@@ -94,6 +123,11 @@ export function calculateExposure(s: CameraSettings): ExposureResult {
     hasShallowDof: dofMm < 500,
     backgroundBlurPx,
     focalScale: calculateFocalLengthScale(s.focalLength),
+    previewBrightnessPercent,
+    previewContrastPercent,
+    previewSaturationPercent,
+    grainOpacity,
+    vignetteOpacity,
   };
 }
 
