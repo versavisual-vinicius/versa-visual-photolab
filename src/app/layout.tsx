@@ -44,7 +44,7 @@ export default function RootLayout({
           <nav className="container mx-auto flex max-w-6xl flex-col gap-1 px-4 py-2 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
             <Link
               href="/"
-              className="shrink-0 font-display text-sm font-bold uppercase text-[#C8A96E] [letter-spacing:0.14em]"
+              className="flex min-h-[44px] shrink-0 items-center font-display text-sm font-bold uppercase text-[#C8A96E] [letter-spacing:0.14em]"
               aria-label="VERSA VISUAL"
             >
               <span className="sm:hidden">VERSA</span>
