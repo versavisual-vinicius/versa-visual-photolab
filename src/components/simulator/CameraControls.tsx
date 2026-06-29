@@ -199,17 +199,6 @@ export default function CameraControls({
             onChange({ ...settings, focalLength: FOCAL_LENGTHS[Math.round(i)] })
           }
         />
-        <SliderRow
-          label="Distância do assunto"
-          hint="Mais perto aumenta o desfoque do fundo."
-          value={settings.subjectDistance}
-          displayValue={`${settings.subjectDistance.toFixed(1)}m`}
-          min={0.5}
-          max={15}
-          step={0.5}
-          disabled={locked.subjectDistance}
-          onChange={(v) => onChange({ ...settings, subjectDistance: v })}
-        />
         <div className="flex items-center justify-between gap-3 border border-[#3A3A3A] bg-[#111111] p-3">
           <div>
             <Label className="font-body text-sm font-medium text-[#FAFAFA]">
