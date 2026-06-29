@@ -19,7 +19,7 @@ const SHUTTER_STOPS = [
   1 / 2,
   1,
 ];
-const FOCAL_LENGTHS = [24, 35, 50, 85, 105, 135];
+const FOCAL_LENGTHS = [25, 35, 50, 85, 105, 135];
 const SHUTTER_LABELS = [
   "1/2000",
   "1/1000",

@@ -38,33 +38,83 @@ export default function PhotoPreview({
   imageUrls,
 }: Props) {
   const brightness = getBrightness(result.evDelta);
-  const blurPx = result.hasMotionBlur ? 3 : 0;
   const activeImage = resolveImage(result.evDelta, imageUrl, imageUrls);
+  const focalScale = result.focalScale;
+  const baseScale = focalScale * (result.backgroundBlurPx > 0.05 ? 1.012 : 1);
+  const cameraShakeBlurPx = result.cameraShakeBlurPx;
+  const backgroundBlurPx = result.backgroundBlurPx;
+  const subjectBlurPx = Math.max(
+    result.subjectMotionBlurPx,
+    result.cameraShakeBlurPx,
+  );
+  const baseBlurPx = cameraShakeBlurPx + backgroundBlurPx;
+  const baseFilter = `brightness(${brightness}%) blur(${baseBlurPx.toFixed(2)}px)`;
+  const subjectFilter = `brightness(${brightness}%) blur(${subjectBlurPx.toFixed(2)}px)`;
+  const showSubjectPlane =
+    result.backgroundBlurPx > 0.05 ||
+    result.subjectMotionBlurPx > 0.05 ||
+    result.cameraShakeBlurPx > 0.05;
+
+  const renderPlane = ({
+    filter,
+    scale,
+    masked = false,
+  }: {
+    filter: string;
+    scale: number;
+    masked?: boolean;
+  }) => {
+    const commonStyle = {
+      filter,
+      transform: `scale(${scale.toFixed(4)})`,
+      transformOrigin: "50% 45%",
+      transition: "filter 0.3s ease, transform 0.3s ease",
+      ...(masked
+        ? {
+            WebkitMaskImage:
+              "radial-gradient(ellipse 34% 46% at 50% 43%, #000 0%, #000 58%, transparent 78%)",
+            maskImage:
+              "radial-gradient(ellipse 34% 46% at 50% 43%, #000 0%, #000 58%, transparent 78%)",
+          }
+        : {}),
+    };
+
+    if (activeImage) {
+      return (
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-all duration-300"
+          style={{
+            ...commonStyle,
+            backgroundImage: `url(${activeImage})`,
+          }}
+          aria-hidden={masked}
+        />
+      );
+    }
+
+    return (
+      <div
+        className="absolute inset-0 flex items-center justify-center text-8xl transition-all duration-300"
+        style={{
+          ...commonStyle,
+          background: `hsl(${220 + result.evDelta * 5}, 20%, ${20 + brightness * 0.3}%)`,
+        }}
+        aria-hidden={masked}
+      >
+        {scenarioEmoji}
+      </div>
+    );
+  };
 
   return (
     <div
       className="relative overflow-hidden border border-[#3A3A3A]"
       style={{ aspectRatio: "4/3", background: "#0A0A0A", borderRadius: "2px" }}
     >
-      {activeImage ? (
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-all duration-300"
-          style={{
-            backgroundImage: `url(${activeImage})`,
-            filter: `brightness(${brightness}%) blur(${blurPx}px)`,
-          }}
-        />
-      ) : (
-        <div
-          className="absolute inset-0 flex items-center justify-center text-8xl transition-all duration-300"
-          style={{
-            filter: `brightness(${brightness}%) blur(${blurPx}px)`,
-            background: `hsl(${220 + result.evDelta * 5}, 20%, ${20 + brightness * 0.3}%)`,
-          }}
-        >
-          {scenarioEmoji}
-        </div>
-      )}
+      {renderPlane({ filter: baseFilter, scale: baseScale })}
+
+      {showSubjectPlane &&
+        renderPlane({ filter: subjectFilter, scale: focalScale, masked: true })}
 
       {result.hasNoise && (
         <div

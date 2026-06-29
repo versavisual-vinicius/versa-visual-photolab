@@ -16,8 +16,13 @@ export interface ExposureResult {
   isOverexposed: boolean;
   hasNoise: boolean;
   hasMotionBlur: boolean;
+  motionBlurPx: number;
+  cameraShakeBlurPx: number;
+  subjectMotionBlurPx: number;
   dofMm: number;
   hasShallowDof: boolean;
+  backgroundBlurPx: number;
+  focalScale: number;
 }
 
 export interface ScenarioChallenge {

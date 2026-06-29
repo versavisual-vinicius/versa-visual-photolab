@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { calculateExposure, scoreAttempt } from "@/lib/exposure-engine";
+import {
+  calculateExposure,
+  calculateFocalLengthScale,
+  scoreAttempt,
+} from "@/lib/exposure-engine";
 import type { CameraSettings, ScenarioIdealSettings } from "@/types";
 
 const baseSettings: CameraSettings = {
@@ -52,9 +56,11 @@ describe("calculateExposure", () => {
     expect(calculateExposure(blurry).hasMotionBlur).toBe(true);
   });
 
-  it("no motion blur with tripod even at slow shutter", () => {
+  it("tripod removes camera shake but not slow-shutter subject blur", () => {
     const steady = { ...baseSettings, shutterSpeed: 1 / 10, tripod: true };
-    expect(calculateExposure(steady).hasMotionBlur).toBe(false);
+    const result = calculateExposure(steady);
+    expect(result.cameraShakeBlurPx).toBe(0);
+    expect(result.subjectMotionBlurPx).toBeGreaterThan(0);
   });
 
   it("detects shallow DoF at f/1.8, 50mm, 3m", () => {
@@ -66,6 +72,68 @@ describe("calculateExposure", () => {
     const open = calculateExposure({ ...baseSettings, aperture: 2.8 });
     const closed = calculateExposure({ ...baseSettings, aperture: 16 });
     expect(closed.dofMm).toBeGreaterThan(open.dofMm);
+  });
+
+  it("85mm f/1.8 creates strong background blur without motion blur", () => {
+    const result = calculateExposure({
+      ...baseSettings,
+      aperture: 1.8,
+      shutterSpeed: 1 / 500,
+      focalLength: 85,
+      subjectDistance: 2,
+    });
+
+    expect(result.backgroundBlurPx).toBeGreaterThanOrEqual(5);
+    expect(result.motionBlurPx).toBe(0);
+  });
+
+  it("f/11 keeps background blur low compared to f/1.8", () => {
+    const wide = calculateExposure({
+      ...baseSettings,
+      aperture: 1.8,
+      focalLength: 85,
+      subjectDistance: 2,
+    });
+    const stopped = calculateExposure({
+      ...baseSettings,
+      aperture: 11,
+      focalLength: 85,
+      subjectDistance: 2,
+    });
+
+    expect(stopped.backgroundBlurPx).toBeLessThanOrEqual(0.2);
+    expect(wide.backgroundBlurPx).toBeGreaterThan(stopped.backgroundBlurPx);
+  });
+
+  it("slow shutter at f/8 creates motion blur without artificial bokeh", () => {
+    const result = calculateExposure({
+      ...baseSettings,
+      aperture: 8,
+      shutterSpeed: 1 / 15,
+      focalLength: 50,
+      subjectDistance: 3,
+    });
+
+    expect(result.motionBlurPx).toBeGreaterThan(2);
+    expect(result.backgroundBlurPx).toBe(0);
+  });
+
+  it("1/1000s freezes subject motion", () => {
+    const result = calculateExposure({
+      ...baseSettings,
+      iso: 800,
+      aperture: 2.8,
+      shutterSpeed: 1 / 1000,
+      focalLength: 50,
+    });
+
+    expect(result.subjectMotionBlurPx).toBeLessThanOrEqual(0.1);
+  });
+
+  it("85mm is approximately 3.4x tighter than 25mm", () => {
+    const ratio = calculateFocalLengthScale(85) / calculateFocalLengthScale(25);
+
+    expect(ratio).toBeCloseTo(3.4, 1);
   });
 });
 

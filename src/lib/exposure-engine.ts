@@ -7,10 +7,19 @@ import type {
 } from "@/types";
 
 const COC_MM = 0.029;
+const FOCAL_LENGTH_REFERENCE_MM = 25;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+export function calculateFocalLengthScale(focalLength: number) {
+  return clamp(focalLength / FOCAL_LENGTH_REFERENCE_MM, 0.75, 6);
+}
 
 export function calculateExposure(s: CameraSettings): ExposureResult {
   const ev100 = Math.log2(s.aperture ** 2 / s.shutterSpeed);
-  const ev = ev100 + Math.log2(s.iso / 100);
+  const ev = ev100 - Math.log2(s.iso / 100);
   const evScene = s.ambientLight;
   const evDelta = ev - evScene;
 
@@ -24,16 +33,67 @@ export function calculateExposure(s: CameraSettings): ExposureResult {
     d >= hyperfocal ? Infinity : (hyperfocal * d) / (hyperfocal - (d - f));
   const dofMm = dofFar === Infinity ? 999999 : dofFar - dofNear;
 
+  const freezeShutter = 1 / 250;
+  const subjectMotionBlurPx =
+    s.shutterSpeed > freezeShutter
+      ? clamp(Math.log2(s.shutterSpeed / freezeShutter) * 1.2, 0, 6)
+      : 0;
+  const safeShutterByFocal =
+    s.focalLength <= 25
+      ? 1 / 60
+      : s.focalLength <= 50
+        ? 1 / 125
+        : s.focalLength <= 85
+          ? 1 / 160
+          : 1 / 250;
+  const safeShutter = Math.max(1 / s.focalLength, safeShutterByFocal);
+  const cameraShakeBlurPx =
+    !s.tripod && s.shutterSpeed > safeShutter
+      ? clamp(Math.log2(s.shutterSpeed / safeShutter) * 2, 0, 5)
+      : 0;
+  const motionBlurPx = Math.max(subjectMotionBlurPx, cameraShakeBlurPx);
+
+  const apertureOpenness = clamp((5.6 - s.aperture) / (5.6 - 1.4), 0, 1);
+  const focalEffect = Math.pow(s.focalLength / 50, 1.15);
+  const distanceEffect = clamp(3 / s.subjectDistance, 0.45, 1.6);
+  const assumedBackgroundDistance = Math.min(20000, d + 6000);
+  const dofMiss =
+    dofFar === Infinity
+      ? 0
+      : clamp(
+          (assumedBackgroundDistance - dofFar) / assumedBackgroundDistance,
+          0,
+          1,
+        );
+  const backgroundSeparation = clamp(0.65 + dofMiss, 0.65, 1.45);
+  const backgroundBlurPx =
+    apertureOpenness === 0
+      ? 0
+      : clamp(
+          apertureOpenness *
+            focalEffect *
+            distanceEffect *
+            backgroundSeparation *
+            4.2,
+          0,
+          10,
+        );
+
   return {
     ev,
     evScene,
     evDelta,
-    isUnderexposed: evDelta < -1,
-    isOverexposed: evDelta > 1,
+    isUnderexposed: evDelta > 1,
+    isOverexposed: evDelta < -1,
     hasNoise: s.iso >= 3200,
-    hasMotionBlur: s.shutterSpeed > 1 / 60 && !s.tripod,
+    hasMotionBlur: motionBlurPx > 0.5,
+    motionBlurPx,
+    cameraShakeBlurPx,
+    subjectMotionBlurPx,
     dofMm,
     hasShallowDof: dofMm < 500,
+    backgroundBlurPx,
+    focalScale: calculateFocalLengthScale(s.focalLength),
   };
 }
 
@@ -49,7 +109,7 @@ export function scoreAttempt(
   let dofScore = 20;
 
   const idealEV =
-    Math.log2(ideal.aperture ** 2 / ideal.shutterSpeed) +
+    Math.log2(ideal.aperture ** 2 / ideal.shutterSpeed) -
     Math.log2(ideal.iso / 100);
   const evDiffFromIdeal = result.ev - idealEV;
   const absDelta = Math.abs(evDiffFromIdeal);
@@ -61,11 +121,11 @@ export function scoreAttempt(
     exposureScore = Math.max(0, 40 - penalty);
     if (evDiffFromIdeal > 0) {
       messages.push(
-        "A foto ficou clara demais (superexposta) — reduza o ISO, feche a abertura ou use uma velocidade mais rápida.",
+        "A foto ficou escura demais — aumente o ISO, abra a abertura ou use uma velocidade mais lenta.",
       );
     } else {
       messages.push(
-        "A foto ficou escura demais — aumente o ISO, abra a abertura ou use uma velocidade mais lenta.",
+        "A foto ficou clara demais (superexposta) — reduza o ISO, feche a abertura ou use uma velocidade mais rápida.",
       );
     }
   }
