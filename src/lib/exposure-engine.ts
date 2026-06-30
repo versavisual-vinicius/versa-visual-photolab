@@ -4,9 +4,40 @@ import type {
   ScenarioIdealSettings,
   AttemptFeedback,
   ScoreBreakdown,
+  Scenario,
 } from "@/types";
 
 const COC_MM = 0.029;
+const FOCAL_LENGTH_REFERENCE_MM = 25;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+export function calculateFocalLengthScale(focalLength: number) {
+  return clamp(focalLength / FOCAL_LENGTH_REFERENCE_MM, 0.75, 6);
+}
+
+// With PLUS formula: evDelta > 0 = overexposed (too bright), evDelta < 0 = underexposed (too dark)
+function calculatePreviewBrightness(evDelta: number) {
+  return clamp(100 + evDelta * 25, 8, 185);
+}
+
+function calculatePreviewContrast(evDelta: number) {
+  const exposureStress = Math.min(1, Math.abs(evDelta) / 3);
+  return clamp(108 - exposureStress * 24, 78, 112);
+}
+
+function calculatePreviewSaturation(evDelta: number, iso: number) {
+  const exposureStress = Math.min(1, Math.abs(evDelta) / 3);
+  const isoStress = Math.min(1, Math.max(0, Math.log2(iso / 800)) / 4);
+  return clamp(105 - exposureStress * 24 - isoStress * 10, 70, 108);
+}
+
+function calculateGrainOpacity(iso: number) {
+  if (iso <= 800) return 0;
+  return clamp(Math.log2(iso / 800) * 0.08, 0.08, 0.34);
+}
 
 export function calculateExposure(s: CameraSettings): ExposureResult {
   const ev100 = Math.log2(s.aperture ** 2 / s.shutterSpeed);
@@ -24,6 +55,62 @@ export function calculateExposure(s: CameraSettings): ExposureResult {
     d >= hyperfocal ? Infinity : (hyperfocal * d) / (hyperfocal - (d - f));
   const dofMm = dofFar === Infinity ? 999999 : dofFar - dofNear;
 
+  const freezeShutter = 1 / 60;
+  const subjectMotionBlurPx =
+    s.shutterSpeed > freezeShutter
+      ? clamp(Math.log2(s.shutterSpeed / freezeShutter) * 1.2, 0, 6)
+      : 0;
+  const safeShutterByFocal =
+    s.focalLength <= 25
+      ? 1 / 60
+      : s.focalLength <= 50
+        ? 1 / 125
+        : s.focalLength <= 85
+          ? 1 / 160
+          : 1 / 250;
+  const safeShutter = Math.max(1 / s.focalLength, safeShutterByFocal);
+  const cameraShakeBlurPx =
+    !s.tripod && s.shutterSpeed > safeShutter
+      ? clamp(Math.log2(s.shutterSpeed / safeShutter) * 2, 0, 5)
+      : 0;
+  const motionBlurPx = Math.max(subjectMotionBlurPx, cameraShakeBlurPx);
+
+  const apertureOpenness = clamp((5.6 - s.aperture) / (5.6 - 1.4), 0, 1);
+  const focalEffect = Math.pow(s.focalLength / 50, 1.15);
+  const distanceEffect = clamp(3 / s.subjectDistance, 0.45, 1.6);
+  const assumedBackgroundDistance = Math.min(20000, d + 6000);
+  const dofMiss =
+    dofFar === Infinity
+      ? 0
+      : clamp(
+          (assumedBackgroundDistance - dofFar) / assumedBackgroundDistance,
+          0,
+          1,
+        );
+  const backgroundSeparation = clamp(0.65 + dofMiss, 0.65, 1.45);
+  const backgroundBlurPx =
+    apertureOpenness === 0
+      ? 0
+      : clamp(
+          apertureOpenness *
+            focalEffect *
+            distanceEffect *
+            backgroundSeparation *
+            4.2,
+          0,
+          10,
+        );
+
+  const previewBrightnessPercent = calculatePreviewBrightness(evDelta);
+  const previewContrastPercent = calculatePreviewContrast(evDelta);
+  const previewSaturationPercent = calculatePreviewSaturation(evDelta, s.iso);
+  const grainOpacity = calculateGrainOpacity(s.iso);
+  const vignetteOpacity = clamp(
+    0.1 + Math.max(0, s.focalLength - 50) / 260 + Math.abs(evDelta) * 0.025,
+    0.08,
+    0.26,
+  );
+
   return {
     ev,
     evScene,
@@ -31,9 +118,19 @@ export function calculateExposure(s: CameraSettings): ExposureResult {
     isUnderexposed: evDelta < -1,
     isOverexposed: evDelta > 1,
     hasNoise: s.iso >= 3200,
-    hasMotionBlur: s.shutterSpeed > 1 / 60 && !s.tripod,
+    hasMotionBlur: cameraShakeBlurPx > 0.5,
+    motionBlurPx,
+    cameraShakeBlurPx,
+    subjectMotionBlurPx,
     dofMm,
     hasShallowDof: dofMm < 500,
+    backgroundBlurPx,
+    focalScale: calculateFocalLengthScale(s.focalLength),
+    previewBrightnessPercent,
+    previewContrastPercent,
+    previewSaturationPercent,
+    grainOpacity,
+    vignetteOpacity,
   };
 }
 
@@ -41,6 +138,7 @@ export function scoreAttempt(
   result: ExposureResult,
   settings: CameraSettings,
   ideal: ScenarioIdealSettings,
+  scenario?: Scenario,
 ): AttemptFeedback {
   const messages: string[] = [];
   let exposureScore = 40;
@@ -61,11 +159,13 @@ export function scoreAttempt(
     exposureScore = Math.max(0, 40 - penalty);
     if (evDiffFromIdeal > 0) {
       messages.push(
-        "A foto ficou clara demais (superexposta) — reduza o ISO, feche a abertura ou use uma velocidade mais rápida.",
+        scenario?.feedback?.overexposed ??
+          "A foto ficou clara demais (superexposta) — reduza o ISO, feche a abertura ou aumente a velocidade.",
       );
     } else {
       messages.push(
-        "A foto ficou escura demais — aumente o ISO, abra a abertura ou use uma velocidade mais lenta.",
+        scenario?.feedback?.underexposed ??
+          "A foto ficou escura demais — aumente o ISO, abra a abertura ou diminua a velocidade.",
       );
     }
   }
@@ -74,7 +174,8 @@ export function scoreAttempt(
     if (ideal.requiresLowNoise) {
       noiseScore = settings.iso >= 6400 ? 0 : 5;
       messages.push(
-        "ISO alto gerou muito ruído — tente reduzir o ISO e compensar com abertura maior ou velocidade menor.",
+        scenario?.feedback?.noisy ??
+          "ISO alto gerou muito ruído — tente reduzir o ISO e compensar com abertura maior ou velocidade menor.",
       );
     } else {
       noiseScore = settings.iso >= 6400 ? 10 : 15;
@@ -86,7 +187,8 @@ export function scoreAttempt(
     if (ideal.requiresFrozenMotion) {
       motionScore = 0;
       messages.push(
-        "Velocidade muito baixa causou tremido — use pelo menos 1/125s para congelar o movimento.",
+        scenario?.feedback?.motionBlur ??
+          "Velocidade muito baixa causou tremido — use pelo menos 1/125s para congelar o movimento.",
       );
     } else {
       motionScore = 10;
@@ -99,7 +201,8 @@ export function scoreAttempt(
   if (ideal.requiresShallowDof && !result.hasShallowDof) {
     dofScore = 0;
     messages.push(
-      "O fundo não ficou desfocado — abra mais a abertura (número f/ menor) ou aproxime-se do assunto.",
+      scenario?.feedback?.shallowDofMissed ??
+        "O fundo não ficou desfocado — abra mais a abertura (número f/ menor) ou aproxime-se do assunto.",
     );
   } else if (!ideal.requiresShallowDof && result.hasShallowDof) {
     dofScore = 10;
@@ -108,7 +211,13 @@ export function scoreAttempt(
     );
   }
 
-  const total = exposureScore + noiseScore + motionScore + dofScore;
+  const score: ScoreBreakdown = {
+    total: exposureScore + noiseScore + motionScore + dofScore,
+    exposureScore,
+    noiseScore,
+    motionScore,
+    dofScore,
+  };
 
   return {
     messages,
@@ -117,6 +226,11 @@ export function scoreAttempt(
       aperture: ideal.aperture,
       shutterSpeed: ideal.shutterSpeed,
     },
-    score: { total, exposureScore, noiseScore, motionScore, dofScore },
+    score,
+    technique: scenario?.feedback?.perfect ?? undefined,
+    nextAttempt:
+      score.total >= 80
+        ? undefined
+        : (scenario?.feedback?.nextAttempt ?? undefined),
   };
 }
