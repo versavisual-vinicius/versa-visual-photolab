@@ -145,3 +145,8 @@
 .scenario-card:hover .scenario-card-img {
   transform: scale(1.04);
 }
+
+/* Library card hover effect */
+.library-card:hover {
+  background: #111c22 !important;
+}
