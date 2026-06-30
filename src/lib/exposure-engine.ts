@@ -43,7 +43,8 @@ export function calculateExposure(s: CameraSettings): ExposureResult {
   const ev100 = Math.log2(s.aperture ** 2 / s.shutterSpeed);
   const ev = ev100 + Math.log2(s.iso / 100);
   const evScene = s.ambientLight;
-  const evDelta = ev - evScene;
+  const evRequired = evScene + Math.log2(s.iso / 100);
+  const evDelta = evRequired - ev100;
 
   const f = s.focalLength;
   const N = s.aperture;
@@ -146,10 +147,9 @@ export function scoreAttempt(
   let motionScore = 20;
   let dofScore = 20;
 
-  const idealEV =
-    Math.log2(ideal.aperture ** 2 / ideal.shutterSpeed) +
-    Math.log2(ideal.iso / 100);
-  const evDiffFromIdeal = result.ev - idealEV;
+  const ev100Ideal = Math.log2(ideal.aperture ** 2 / ideal.shutterSpeed);
+  const evDeltaIdeal = result.evScene + Math.log2(ideal.iso / 100) - ev100Ideal;
+  const evDiffFromIdeal = result.evDelta - evDeltaIdeal;
   const absDelta = Math.abs(evDiffFromIdeal);
   if (absDelta > ideal.toleranceEV) {
     const penalty = Math.min(
