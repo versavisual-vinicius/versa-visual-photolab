@@ -10,20 +10,20 @@ export default function ExposureMeter({ evDelta }: Props) {
   // Posição do indicador: 0% = extremo esquerdo (−3 EV / subexposta), 100% = direito (+3 EV / superexposta)
   const pct = ((clamped + 3) / 6) * 100;
 
-  const isUnder = evDelta > 1;
-  const isOver = evDelta < -1;
+  // PLUS formula: evDelta > 1 = overexposed, evDelta < -1 = underexposed
+  const isOver = evDelta > 1;
+  const isUnder = evDelta < -1;
 
-  const labelText = isUnder
-    ? "Subexposta"
-    : isOver
-      ? "Superexposta"
+  const labelText = isOver
+    ? "Superexposta"
+    : isUnder
+      ? "Subexposta"
       : "Equilibrada";
 
-  // Cor do label: ouro para equilibrada, branco névoa para super, cinza voz para sub
-  const labelColor = isUnder
-    ? "text-[#8A8A8A]"
-    : isOver
-      ? "text-[#FAFAFA]"
+  const labelColor = isOver
+    ? "text-[#FAFAFA]"
+    : isUnder
+      ? "text-[#8A8A8A]"
       : "text-[#C8A96E]";
 
   const evText =
