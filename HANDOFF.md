@@ -70,10 +70,35 @@ Conflitos resolvidos (sempre mantendo nossa versão PLUS formula + VERSAVISUAL p
 
 ---
 
+## Sessão 2026-06-30 (continuação) — Design Implementation
+
+### Status: DEPLOY CONCLUÍDO ✅ (segunda sessão)
+
+Design do `PhotoLab.dc.html` implementado via SDD (6 tasks, 5 subagents + reviewers).
+
+### Commits desta sessão
+- `2dff9b5` — fonts: Righteous/Outfit/DM_Sans; remove global header nav
+- `c3e6a48` — login page hero: glow + grid + Righteous H1 + botões 54px + footer
+- `5d9dc36` — scenarios grid: photo-cards 3:4, difficulty badges, sticky nav
+- `5dc3e70` — simulator page: sticky nav ← CENÁRIOS, tipografia --font-display/body
+- `48dc701` — library pages: sticky nav, concept card grid, reading view
+- `eafa138` — style: prettier no slug page
+
+### Arquivos alterados
+- `src/app/layout.tsx` — fontes Righteous/Outfit/DM_Sans, sem header global
+- `src/app/login/page.tsx` — hero completo do design
+- `src/app/scenarios/page.tsx` — grid de fotos sem shadcn
+- `src/app/scenarios/[id]/page.tsx` — nav sticky + tipografia
+- `src/app/library/page.tsx` — nav + card grid conceitos
+- `src/app/library/[slug]/page.tsx` — nav + reading view
+- `src/app/globals.css` — hover CSS para cards (.scenario-card, .library-card)
+
 ## Próximos passos
 
 - **intentionScore / professionalScore**: tipos declarados, lógica de cálculo ainda não implementada em `scoreAttempt()`. Campos existem mas sempre retornam 0.
-- **Middleware deprecation warning**: Next.js 16 avisou que `middleware` → `proxy`. Não urgente, mas documentar para próxima sessão.
+- **profile/page.tsx**: ainda usa layout genérico — pode receber nav + stats grid no próximo sprint
+- **scenarios/page.tsx div→main**: reviewer apontou wrapper semântico; não bloqueante mas corrigir na próxima sessão
+- **Middleware deprecation warning**: Next.js 16 avisou que `middleware` → `proxy`. Não urgente.
 - **firebase-vision.ts**: integração com Gemini Vision para análise de fotos — funcional mas requer `NEXT_PUBLIC_FIREBASE_*` vars configuradas no Vercel.
 
 ## Rollback
