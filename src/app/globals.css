@@ -140,3 +140,8 @@
     font-family: var(--font-mono-versa), monospace;
   }
 }
+
+/* Scenario card hover effect */
+.scenario-card:hover .scenario-card-img {
+  transform: scale(1.04);
+}
