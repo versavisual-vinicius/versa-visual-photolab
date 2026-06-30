@@ -41,7 +41,7 @@ const DIFFICULTY: Record<
 
 export default function ScenariosPage() {
   return (
-    <div style={{ background: "#050A0D", minHeight: "100vh" }}>
+    <main style={{ background: "#050A0D", minHeight: "100vh" }}>
       {/* Nav */}
       <nav
         style={{
@@ -230,6 +230,6 @@ export default function ScenariosPage() {
           })}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
