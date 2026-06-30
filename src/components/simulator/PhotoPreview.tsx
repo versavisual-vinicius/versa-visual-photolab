@@ -8,14 +8,15 @@ interface Props {
   imageUrls?: { under?: string; over?: string };
 }
 
+// PLUS formula: evDelta > 0 = overexposed (bright), evDelta < 0 = underexposed (dark)
 function getBrightness(delta: number): number {
-  if (delta > 3) return 5;
-  if (delta > 2) return 20;
-  if (delta > 1) return 50;
-  if (delta > 0) return 75;
+  if (delta > 3) return 200;
+  if (delta > 2) return 175;
+  if (delta > 1) return 150;
+  if (delta > 0) return 120;
   if (delta >= -1) return 100;
-  if (delta >= -2) return 130;
-  return 180;
+  if (delta >= -2) return 60;
+  return 20;
 }
 
 function resolveImage(
@@ -25,8 +26,8 @@ function resolveImage(
 ): string | undefined {
   if (!imageUrl) return undefined;
   if (imageUrls) {
-    if (evDelta > 1 && imageUrls.under) return imageUrls.under;
-    if (evDelta < -1 && imageUrls.over) return imageUrls.over;
+    if (evDelta > 1 && imageUrls.over) return imageUrls.over;
+    if (evDelta < -1 && imageUrls.under) return imageUrls.under;
   }
   return imageUrl;
 }
