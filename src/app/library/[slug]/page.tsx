@@ -90,6 +90,25 @@ export default function ConceptPage({
           >
             VERSAVISUAL
           </span>
+          <span
+            style={{
+              width: 1,
+              height: 16,
+              background: "rgba(164,184,191,.2)",
+              display: "inline-block",
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 11,
+              letterSpacing: ".25em",
+              textTransform: "uppercase",
+              color: "#5E7F8C",
+            }}
+          >
+            PHOTOLAB
+          </span>
         </div>
       </nav>
 
