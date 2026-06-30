@@ -1,5 +1,6 @@
 "use client";
 import { useState, use } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Target, Lightbulb } from "lucide-react";
 import { getScenario } from "@/lib/scenarios";
@@ -64,83 +65,161 @@ export default function ScenarioPage({
   };
 
   return (
-    <main className="container max-w-2xl mx-auto py-8 px-4 space-y-6">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-3xl">{scenario.emoji}</span>
-          <h1 className="text-2xl font-bold">{scenario.title}</h1>
-        </div>
-        <p className="text-muted-foreground">{scenario.description}</p>
-      </div>
-
-      <div
-        className="p-4"
+    <div style={{ background: "#050A0D", minHeight: "100vh" }}>
+      <nav
         style={{
-          border: "1px solid rgba(200,169,110,0.30)",
-          background: "rgba(200,169,110,0.06)",
-          borderRadius: "2px",
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+          background: "rgba(5,10,13,0.85)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(164,184,191,0.08)",
+          height: 56,
+          display: "flex",
+          alignItems: "center",
         }}
       >
         <div
-          className="flex items-center gap-2 font-body font-medium mb-2"
-          style={{ color: "#C8A96E" }}
+          style={{
+            maxWidth: 800,
+            margin: "0 auto",
+            padding: "0 16px",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
         >
-          <Target size={15} aria-hidden="true" />
-          <span>Desafio</span>
+          <Link
+            href="/scenarios"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 11,
+              letterSpacing: ".15em",
+              textTransform: "uppercase",
+              color: "#5E7F8C",
+              textDecoration: "none",
+            }}
+          >
+            ← CENÁRIOS
+          </Link>
+          <span style={{ flex: 1 }} />
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: 13,
+              letterSpacing: ".15em",
+              color: "#C8A96E",
+            }}
+          >
+            VERSAVISUAL
+          </span>
         </div>
-        <p className="font-body text-sm text-[#FAFAFA]">
-          {scenario.challenge.description}
-        </p>
-        <ul className="mt-3 space-y-1.5">
-          {scenario.challenge.hints.map((h, i) => (
-            <li
-              key={i}
-              className="font-body text-xs flex gap-2 items-start"
-              style={{ color: "#8A8A8A" }}
-            >
-              <Lightbulb
-                size={11}
-                className="mt-0.5 flex-shrink-0"
-                style={{ color: "#C8A96E" }}
-                aria-hidden="true"
-              />
-              {h}
-            </li>
-          ))}
-        </ul>
-      </div>
+      </nav>
 
-      <CameraSimulator
-        initialSettings={{
-          ambientLight: scenario.ambientLight,
-          iso: scenario.ideal.iso,
-          aperture: scenario.ideal.aperture,
-          shutterSpeed: scenario.ideal.shutterSpeed,
+      <main
+        style={{
+          maxWidth: 672,
+          margin: "0 auto",
+          padding: "32px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
         }}
-        scenarioEmoji={scenario.emoji}
-        imageUrl={scenario.imageUrl}
-        imageUrls={scenario.imageUrls}
-        onShoot={handleShoot}
-        shootLabel="Fotografar e avaliar"
-      />
-
-      {feedback && attempt && (
-        <div className="space-y-4">
-          <ScoreCard score={feedback.score} />
-          {savedLocally && (
-            <p className="rounded-lg border border-green-900/50 bg-green-950/30 px-4 py-3 text-sm text-green-200">
-              Progresso salvo neste navegador. Entrar com Google é opcional e só
-              serve para sincronizar depois.
-            </p>
-          )}
-          <FeedbackPanel
-            messages={feedback.messages}
-            technique={feedback.technique}
-            nextAttempt={feedback.nextAttempt}
-          />
-          <SettingsComparator attempt={attempt} feedback={feedback} />
+      >
+        <div>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: 24,
+              color: "#F2F2F2",
+              margin: 0,
+            }}
+          >
+            {scenario.title}
+          </h1>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 14,
+              color: "#A4B8BF",
+              marginTop: 8,
+            }}
+          >
+            {scenario.description}
+          </p>
         </div>
-      )}
-    </main>
+
+        <div
+          className="p-4"
+          style={{
+            border: "1px solid rgba(200,169,110,0.30)",
+            background: "rgba(200,169,110,0.06)",
+            borderRadius: "2px",
+          }}
+        >
+          <div
+            className="flex items-center gap-2 font-body font-medium mb-2"
+            style={{ color: "#C8A96E" }}
+          >
+            <Target size={15} aria-hidden="true" />
+            <span>Desafio</span>
+          </div>
+          <p className="font-body text-sm text-[#FAFAFA]">
+            {scenario.challenge.description}
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            {scenario.challenge.hints.map((h, i) => (
+              <li
+                key={i}
+                className="font-body text-xs flex gap-2 items-start"
+                style={{ color: "#8A8A8A" }}
+              >
+                <Lightbulb
+                  size={11}
+                  className="mt-0.5 flex-shrink-0"
+                  style={{ color: "#C8A96E" }}
+                  aria-hidden="true"
+                />
+                {h}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <CameraSimulator
+          initialSettings={{
+            ambientLight: scenario.ambientLight,
+            iso: scenario.ideal.iso,
+            aperture: scenario.ideal.aperture,
+            shutterSpeed: scenario.ideal.shutterSpeed,
+          }}
+          scenarioEmoji={scenario.emoji}
+          imageUrl={scenario.imageUrl}
+          imageUrls={scenario.imageUrls}
+          onShoot={handleShoot}
+          shootLabel="Fotografar e avaliar"
+        />
+
+        {feedback && attempt && (
+          <div className="space-y-4">
+            <ScoreCard score={feedback.score} />
+            {savedLocally && (
+              <p className="rounded-lg border border-green-900/50 bg-green-950/30 px-4 py-3 text-sm text-green-200">
+                Progresso salvo neste navegador. Entrar com Google é opcional e
+                só serve para sincronizar depois.
+              </p>
+            )}
+            <FeedbackPanel
+              messages={feedback.messages}
+              technique={feedback.technique}
+              nextAttempt={feedback.nextAttempt}
+            />
+            <SettingsComparator attempt={attempt} feedback={feedback} />
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
