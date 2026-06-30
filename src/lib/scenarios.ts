@@ -31,6 +31,28 @@ export const SCENARIOS: Scenario[] = [
       requiresFrozenMotion: true,
       requiresLowNoise: true,
     },
+    learningOrder: 1,
+    coursePillar: "Exposição",
+    courseModule: "Triângulo da exposição em alta luminosidade",
+    intention: "Congelar movimento em luz intensa sem superexpor",
+    professionalUse: "Fotografia de esportes aquáticos, lifestyle praia",
+    lightType: "Natural direta",
+    lightDirection: "Frontal-lateral",
+    lightChallenge: "Alta dinâmica: reflexos de areia e água + sombras fortes",
+    feedback: {
+      underexposed:
+        "A praia com tanta luz deveria estar bem exposta. Tente aumentar o ISO, abrir a abertura ou usar velocidade mais lenta.",
+      overexposed:
+        "Areia e água refletiram muito! Reduza o ISO, feche a abertura ou use um filtro ND.",
+      noisy:
+        "Com tanta luz na praia, ISO 100 é suficiente — não há necessidade de ISO alto aqui.",
+      motionBlur:
+        "A onda não ficou congelada. Use 1/500s ou mais para capturar o impacto.",
+      perfect:
+        "Exposição perfeita! A onda está nítida e a luz da praia está equilibrada.",
+      nextAttempt:
+        "Tente 1/1000s para congelar spray da onda. Compare com 1/250s para ver a diferença.",
+    },
   },
   {
     id: "estudio",
@@ -60,6 +82,29 @@ export const SCENARIOS: Scenario[] = [
       requiresShallowDof: true,
       requiresFrozenMotion: false,
       requiresLowNoise: true,
+    },
+    learningOrder: 2,
+    coursePillar: "Profundidade de campo",
+    courseModule: "Bokeh controlado em estúdio",
+    intention: "Separar produto do fundo com abertura aberta",
+    professionalUse: "Fotografia de produto, e-commerce, still life",
+    lightType: "Artificial — softbox",
+    lightDirection: "Lateral 45°",
+    lightChallenge:
+      "Luz plana de estúdio — domínio de abertura para criar profundidade",
+    feedback: {
+      underexposed:
+        "O estúdio tem luz controlada — aumente um pouco o ISO ou abra a abertura.",
+      overexposed:
+        "Reduza a potência do flash ou feche a abertura para proteger os detalhes claros.",
+      noisy:
+        "Em estúdio você controla a luz — ISO 200 é suficiente. Evite ISO alto aqui.",
+      shallowDofMissed:
+        "Abra mais a abertura (f/2.8 ou f/1.8) para desfocar o fundo e destacar o produto.",
+      perfect:
+        "Produto bem exposto com fundo suavemente desfocado. Resultado profissional!",
+      nextAttempt:
+        "Tente f/1.8 e veja como o bokeh isola ainda mais o produto do fundo neutro.",
     },
   },
   {
@@ -92,6 +137,29 @@ export const SCENARIOS: Scenario[] = [
       requiresFrozenMotion: false,
       requiresLowNoise: false,
     },
+    learningOrder: 3,
+    coursePillar: "ISO e ruído",
+    courseModule: "Fotografar na mão em ambiente de baixa luz",
+    intention: "Equilibrar ISO, abertura e velocidade sem tripé",
+    professionalUse: "Fotografia de interiores, lifestyle indoor, retratos",
+    lightType: "Mista — janela + artificial",
+    lightDirection: "Lateral difusa",
+    lightChallenge:
+      "Baixa luminosidade + mistura de temperaturas de cor — desafio de equilíbrio",
+    feedback: {
+      underexposed:
+        "Pouca luz aqui. Aumente o ISO para 800 ou mais, ou abra a abertura para f/2.8.",
+      overexposed:
+        "Raro em ambiente interno assim. Feche a abertura ou reduza o ISO.",
+      noisy:
+        "ISO elevado gerou ruído visível. Em ambientes internos é um trade-off — reduza se puder abrir mais a abertura.",
+      motionBlur:
+        "Tremido! Mantenha ao menos 1/60s ao fotografar na mão. Segure a respiração.",
+      perfect:
+        "Equilíbrio perfeito para baixa luz sem tripé. A exposição e nitidez estão ótimas.",
+      nextAttempt:
+        "Experimente ISO 1600 com 1/125s e compare o ruído com o tremido — qual você prefere?",
+    },
   },
   {
     id: "campo",
@@ -123,6 +191,27 @@ export const SCENARIOS: Scenario[] = [
       requiresFrozenMotion: false,
       requiresLowNoise: true,
     },
+    learningOrder: 4,
+    coursePillar: "Profundidade de campo",
+    courseModule: "Hiperfocal e profundidade máxima em paisagem",
+    intention: "Maximizar foco do primeiro plano ao infinito",
+    professionalUse: "Fotografia de paisagem, natureza, imobiliária outdoor",
+    lightType: "Natural indireta",
+    lightDirection: "Ampla / difusa",
+    lightChallenge:
+      "Luz variável de céu nublado — exposição consistente sem stourar nuvens",
+    feedback: {
+      underexposed:
+        "A paisagem merece exposição generosa. Abra um pouco a abertura ou use velocidade mais lenta com tripé.",
+      overexposed:
+        "O céu estourou! Feche a abertura ou use velocidade mais rápida para preservar as nuvens.",
+      noisy:
+        "Com luz natural e tripé, ISO 100 é o ideal para paisagem. Não há motivo para ISO alto.",
+      perfect:
+        "Paisagem do primeiro plano ao horizonte, tudo em foco. Exposição equilibrada!",
+      nextAttempt:
+        "Tente f/16 com tripé e compare com f/8. Qual mantém melhor foco no primeiro plano?",
+    },
   },
   {
     id: "casa",
@@ -153,6 +242,29 @@ export const SCENARIOS: Scenario[] = [
       requiresShallowDof: false,
       requiresFrozenMotion: false,
       requiresLowNoise: false,
+    },
+    learningOrder: 5,
+    coursePillar: "Baixa luz",
+    courseModule: "Limite de ISO em ambiente noturno indoor",
+    intention: "Fotografar em luz mínima aceitando ruído como trade-off",
+    professionalUse: "Fotografia de interiores à noite, lifestyle doméstico",
+    lightType: "Artificial — tungstênio + LED",
+    lightDirection: "Pontual / abajur",
+    lightChallenge:
+      "Luz mínima e quente — equilíbrio extremo entre ISO, abertura e velocidade",
+    feedback: {
+      underexposed:
+        "Muito escuro! Com tão pouca luz, suba o ISO para 1600 ou 3200 e abra ao máximo a abertura.",
+      overexposed:
+        "A luz do abajur enganou? Reduza o ISO ou feche levemente a abertura.",
+      noisy:
+        "O ruído em ISO 3200 aqui é esperado e aceitável. O importante é ter uma foto exposta.",
+      motionBlur:
+        "Tremido! Apoie a câmera em algo ou use 1/30s no mínimo mesmo com abertura bem aberta.",
+      perfect:
+        "Exposição impressionante com tão pouca luz. Domínio total do triângulo da exposição!",
+      nextAttempt:
+        "Compare ISO 3200/f1.8/1/60s com ISO 6400/f2.8/1/60s. Qual tem menos ruído total?",
     },
   },
 ];
