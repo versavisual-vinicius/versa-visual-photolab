@@ -16,6 +16,28 @@ const GRADE = (n: number) =>
 export default function ScoreCard({ score }: Props) {
   const { label, color } = GRADE(score.total);
 
+  const baseDimensions = [
+    { label: "Exposição", value: score.exposureScore, max: 40 },
+    { label: "Ruído", value: score.noiseScore, max: 20 },
+    { label: "Movimento", value: score.motionScore, max: 20 },
+    { label: "Profundidade", value: score.dofScore, max: 20 },
+  ];
+
+  const v2Dimensions = [
+    score.intentionScore != null && {
+      label: "Intenção",
+      value: score.intentionScore,
+      max: 20,
+    },
+    score.professionalScore != null && {
+      label: "Profissional",
+      value: score.professionalScore,
+      max: 10,
+    },
+  ].filter(Boolean) as { label: string; value: number; max: number }[];
+
+  const dimensions = [...baseDimensions, ...v2Dimensions];
+
   return (
     <div className="rounded-lg border border-border p-4 space-y-3">
       <div className="flex items-baseline gap-3">
@@ -24,12 +46,7 @@ export default function ScoreCard({ score }: Props) {
         <span className={`text-lg font-medium ${color}`}>{label}</span>
       </div>
       <div className="grid grid-cols-2 gap-2 text-sm">
-        {[
-          { label: "Exposição", value: score.exposureScore, max: 40 },
-          { label: "Ruído", value: score.noiseScore, max: 20 },
-          { label: "Movimento", value: score.motionScore, max: 20 },
-          { label: "Profundidade", value: score.dofScore, max: 20 },
-        ].map(({ label, value, max }) => (
+        {dimensions.map(({ label, value, max }) => (
           <div
             key={label}
             className="flex justify-between bg-muted/30 rounded px-2 py-1"

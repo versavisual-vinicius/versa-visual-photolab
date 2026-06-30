@@ -37,7 +37,12 @@ export default function ScenarioPage({
       ambientLight: scenario.ambientLight,
     };
     const result = calculateExposure(settingsWithScene);
-    const fb = scoreAttempt(result, settingsWithScene, scenario.ideal);
+    const fb = scoreAttempt(
+      result,
+      settingsWithScene,
+      scenario.ideal,
+      scenario,
+    );
     setAttempt(settingsWithScene);
     setFeedback(fb);
     saveLocalAttempt(id, settingsWithScene, fb);
@@ -128,7 +133,11 @@ export default function ScenarioPage({
               serve para sincronizar depois.
             </p>
           )}
-          <FeedbackPanel messages={feedback.messages} />
+          <FeedbackPanel
+            messages={feedback.messages}
+            technique={feedback.technique}
+            nextAttempt={feedback.nextAttempt}
+          />
           <SettingsComparator attempt={attempt} feedback={feedback} />
         </div>
       )}
